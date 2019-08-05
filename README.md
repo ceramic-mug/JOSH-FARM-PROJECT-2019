@@ -25,4 +25,5 @@ I know that last link looks sketchy, and you'll be directed to a really sketchy-
 
 ### Getting the Data
 - File: [./src/dataGrep.py](./src/dataGrep.py)
+
 All the Arable sensors in the field are connected to a server at all times. THIS METHOD FOR GETTING THE DATA WORKS AS LONG AS THE SENSOR IS ON AND ACTIVELY REPORTING. If the sensor is turned off or nonfunctional, THIS METHOD WILL NOT WORK because the sensor will not be in the list of active sensors accessed by this program. But as long as all sensors are on and active, this program will work great.
