@@ -28,7 +28,7 @@ The arable sensors are stationary UFO-shaped things on poles that stick up above
 I know that last link looks sketchy, and you'll be directed to a really sketchy-looking page that says "FREE PLAN," but that's actually the documentation page. Go ahead and click through the scary blue button and you'll land on the true Arable API documentation site. I used it to build my program, so I know it's the right stuff.
 
 ### Getting the Data
-- File: [./src/ArableGrep.py](./src/dataGrep.py)
+- File: [./src/ArableGrep.py](./src/ArableGrep.py)
 - Function: Downloads all the hourly, daily, and health data from currently operational Arable sensors and outputs all data to csv files in the [arable_data](./arable_data) directory, labeled by sensor name and data type.
 
 To run this program, navigate to the folder containing this repository using your terminal and run the following command:
