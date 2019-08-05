@@ -17,12 +17,12 @@ Each of these project arms were approached somewhat differently due to differenc
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
 
-Link to the Arable website: [https://www.arable.com/](https://www.arable.com/)
-Link to our Arable portal: [https://princeton.arable.com/](https://princeton.arable.com/auth/(auth_view:login))
-Link to the Arable API documentation: [https://pro-soap.cloudvent.net/](https://pro-soap.cloudvent.net/)
+- Link to the Arable website: [https://www.arable.com/](https://www.arable.com/)
+- Link to our Arable portal: [https://princeton.arable.com/](https://princeton.arable.com/auth/(auth_view:login))
+- Link to the Arable API documentation: [https://pro-soap.cloudvent.net/](https://pro-soap.cloudvent.net/)
 
 I know that last link looks sketchy, and you'll be directed to a really sketchy-looking page that says "FREE PLAN," but that's actually the documentation page. Go ahead and click through the scary blue button and you'll land on the true Arable API documentation site. I used it to build my program, so I know it's the right stuff.
 
 ### Getting the Data
-File: [./src/dataGrep.py](./src/dataGrep.py)
+- File: [./src/dataGrep.py](./src/dataGrep.py)
 All the Arable sensors in the field are connected to a server at all times. THIS METHOD FOR GETTING THE DATA WORKS AS LONG AS THE SENSOR IS ON AND ACTIVELY REPORTING. If the sensor is turned off or nonfunctional, THIS METHOD WILL NOT WORK because the sensor will not be in the list of active sensors accessed by this program. But as long as all sensors are on and active, this program will work great.
