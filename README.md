@@ -5,14 +5,18 @@ This repository holds an annotated copy of the scripts and workflows that I put 
 I wish you well!
 
 ## Project Arms
-1. [Arable Sensor Data](#ARABLE)
-2. Drone Imagery
+1. [Drone Data](##DRONE)
+2. [Arable Sensor Data](##ARABLE)
 3. Other Data
     - Bugs
     - Soil Nutrients
     - Camera Traps
+4. General Processing
 
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
+
+## DRONE
+This is the big ticket item.
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
@@ -60,8 +64,11 @@ Three known bugs exist in this program:
 - The program sometimes creates odd "_hourly", "_daily", and "_health" csv files with no sensor name labels. I believe these correspond to sensors that were operational but which for whatever reason are off or down. Disregard these files. If you can figure out a way to get sensor names for those sensors that are not currently operational, that would be ideal, because then the program could keep writing to those specific files.
 
 ### Handling the Data
-Downloading the data into an accessible (csv) format is the biggest hurdle. Once it's in the csv format, you can do whatever you want with it. When I did my pretty basic analysis of the Princeton cornfield sensor data, I only used the "_daily.csv" data and averaged data per drone flight week. I'll discuss that in more detail later.
+Downloading the data into an accessible (csv) format is the biggest hurdle. Once it's in the csv format, you can do whatever you want with it. When I did my pretty basic analysis of the Princeton cornfield sensor data, I only used the "*_daily.csv" data and averaged data per drone flight week. I'll discuss that in more detail later.
 
 However, early on in the summer I built a wrangling program with some handy functions that take arable csv files as inputs and output handy data objects. You're welcome to use these functions and dictionaries for your own programs.
 
-- Wrangling Program: [./src/ArableWrangle.py](./src/ArableWrangle.py)
+- General Wrangling Program: [./src/ArableWrangle.py](./src/ArableWrangle.py)
+
+Not all of the functions in [ArableWrangle](./src/ArableWrangle.py) may be useful to you. I would look through this script and identify things that are helpful, implementing only those aspects that are benificial. This program wasn't cleanly finished and packaged because my work shifted to Princeton cornfield only at the end of the 2019 Farm Project, which meant that handling *all* the Arable data was no longer important to me. Development of this program therefore ground to a halt.
+
