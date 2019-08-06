@@ -16,7 +16,18 @@ I wish you well!
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
 
 ## DRONE
-This is the big ticket item.
+**Drone image processing and data extraction** is the big ticket item. This section describes how to use a GIS application to define areas of interest (AOI) and then use these areas with Sentera FieldAgent NDVI exports to extract matrices of NDVI values. Once you have an extracted NDVI value matrix, you can perform all the numerical analysis you want, such as distribution fitting and differentials over time. Ok, let's get started:
+
+*What you need:*
+1. [QGIS](https://qgis.org/en/site/)
+2. [Sentera FieldAgent Desktop](https://sentera.com/fieldagent-platform/)
+3. The following Python modules:
+    - [Rasterio](https://rasterio.readthedocs.io/en/stable/)
+    - [Geopandas](http://geopandas.org/)
+    - [Numpy](https://numpy.org/)
+
+### FieldAgent Desktop Drone Image Import $\rightarrow$ NDVI Mosaic Output
+![FieldAgent](./assets/ClickFieldAgent.png)
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
