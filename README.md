@@ -26,7 +26,7 @@ Each of these project arms were approached somewhat differently due to differenc
     - [Geopandas](http://geopandas.org/)
     - [Numpy](https://numpy.org/)
 
-### FieldAgent Desktop Drone Image Import $\rightarrow$ NDVI Mosaic Output
+### FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output
 ![FieldAgent](./assets/ClickFieldAgent.png)
 
 ## ARABLE
