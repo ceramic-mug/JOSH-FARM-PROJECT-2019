@@ -19,7 +19,7 @@ TODO: Add Stitching Troubleshooting Section
 
 TODO: Add section on naming conventions
 
-TODO: 
+TODO: Add GIS CRS Troubleshooting Section
 
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
 
@@ -63,19 +63,19 @@ When I did this on the Lenovo laptop, I created a top-level folder on the TeraBy
 D:
 ├── DRONE
 │   ├── NIR_images
-│   |   ├── PU-2019-08-02_20-06-13
-│   |   ├── KKcorn-2019-08-02_19-03-35
-│   |   ├── OO-2019-08-02_17-42-43
-│   |   ├── BRF-2019-08-01_18-19-56
-│   |   ├── KKtom-2019-07-26_18-56-46
-│   |   ├── ...
+│        ├── PU-2019-08-02_20-06-13
+│        ├── KKcorn-2019-08-02_19-03-35
+│        ├── OO-2019-08-02_17-42-43
+│        ├── BRF-2019-08-01_18-19-56
+│        ├── KKtom-2019-07-26_18-56-46
+│        ├── ...
 │   ├── RGB_images
-│   |   ├── PU-2019-08-02-RGB
-│   |   ├── KKcorn-2019-08-02-RGB
-│   |   ├── OO-2019-08-02-RGB
-│   |   ├── BRF-2019-08-01-RGB
-│   |   ├── KKtom-2019-07-26-RGB
-│   |   ├── ...
+│        ├── PU-2019-08-02-RGB
+│        ├── KKcorn-2019-08-02-RGB
+│        ├── OO-2019-08-02-RGB
+│        ├── BRF-2019-08-01-RGB
+│        ├── KKtom-2019-07-26-RGB
+│        ├── ...
 └── (etc...)
 ```
 
