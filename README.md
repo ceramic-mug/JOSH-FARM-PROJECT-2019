@@ -14,8 +14,13 @@ I wish you well!
 4. General Processing
 
 TODO: Add outline at top of README
+
 TODO: Add Stitching Troubleshooting Section
+
 TODO: Add section on naming conventions
+
+TODO: 
+
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
 
 ## DRONE
@@ -82,7 +87,7 @@ After moving everything onto the computer and cleaning the SD cards, it's time t
 
 **Launch FieldAgent Desktop Application**
 <p align="center">
-<img src='./assets/ClickFieldAgent.png' width=50%/>
+<img src='./assets/ClickFieldAgent.png' width=80%/>
 </p>
 
 Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out. What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guide)for this) and everything will import properly to their respective farms.
@@ -100,13 +105,13 @@ Once the images have imported to their respective farms and dates, you can begin
 4. In the farm survey viewer, select the date you want to create a mosaic for, then click the blue button with a grid on it to add the selected survey to the stitching queue:
 
 <p align="center">
-<img src='./assets/PU.png' width=50%/>
+<img src='./assets/PU.png' width=80%/>
 </p>
 
 If everything goes properly, it should take anywhere between 30 minutes and 4 hours for the survey to be stitched into RGB, NIR, and NDVI mosaics (depending on the number of photos). Once that's complete, you will see "Full Mosiac ___" options in the survey left sidebar.
 
 <p align="center">
-<img src='./assets/NDVImosaic.png' width=50%/>
+<img src='./assets/NDVImosaic.png' width=80%/>
 </p>
 
 **To prepare the NDVI mosic for export**:
@@ -198,7 +203,7 @@ Before the next step, make sure that snapping is turned on in QGIS. Do this by g
 And that's it! If you took your time and defined your polygons well, then your analysis will be ON POINT! If not, then your numbers will lie, so make sure you do all this well. Here's a short visual summary:
 
 <p align="center">
-<img src='./assets/BuildShape.png' width=50%/></br>
+<img src='./assets/BuildShape.png' width=80%/></br>
 Creating Polygon Layer in QGIS
 </p>
 
