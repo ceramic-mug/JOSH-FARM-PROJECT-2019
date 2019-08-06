@@ -5,7 +5,7 @@ This repository holds an annotated copy of the scripts and workflows that I put 
 - [FARM PROJECT 2019 ~ Joshua Eastman](#farm-project-2019--joshua-eastman)
   - [Project Arms](#project-arms)
   - [DRONE](#drone)
-    - [FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output](#fieldagent-desktop-drone-image-import-a-href%22httpswwwcodecogscomeqneditphplatexrightarrow%22-target%22blank%22img-src%22httpslatexcodecogscomgiflatexrightarrow%22-title%22rightarrow%22-a-ndvi-mosaic-output)
+    - [FieldAgent](#fieldagent)
       - [Image Import](#image-import)
       - [NDVI Mosaic Output](#ndvi-mosaic-output)
     - [Construct Shapefiles to Define Areas of Interest (AOI)](#construct-shapefiles-to-define-areas-of-interest-aoi)
@@ -45,7 +45,7 @@ Each of these project arms were approached somewhat differently due to differenc
     - [Geopandas](http://geopandas.org/)
     - [Numpy](https://numpy.org/)
 
-### FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output
+### FieldAgent
 
 #### Image Import
 
