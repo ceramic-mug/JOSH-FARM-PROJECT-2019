@@ -38,16 +38,51 @@ Here is how structured my image import workflow, and it worked really well. The 
     - Can add multiple farms at once, **but not multiple times**. So if any farm was flown over more than once between imports, you need to import each flight seperately.
 
 After having successfully flown the drone at your farms for the week, you need to import the images from the two drone SD cards:
-- In the little green Sentera sensor (NIR)
-- In the side of the drone (RGB)
+- From the side of the drone (RGB)
 
+<p align="center">
+<img src='./assets/RGBsd.jpg' width=30%/>
+</p>
 
+- From the little green Sentera sensor (NIR)
+<p align="center">
+<img src='./assets/NIRsensor.jpg' width=30%/>
+</p>
+
+When I did this on the Lenovo laptop, I created a top-level folder on the TeraByte drive called "DRONE" and structured sub-folders like this:
+
+```bash
+D:
+├── DRONE
+│   ├── NIR_images
+│   |   ├── PU-2019-08-02_20-06-13
+│   |   ├── KKcorn-2019-08-02_19-03-35
+│   |   ├── OO-2019-08-02_17-42-43
+│   |   ├── BRF-2019-08-01_18-19-56
+│   |   ├── KKtom-2019-07-26_18-56-46
+│   |   ├── ...
+│   ├── RGB_images
+│   |   ├── PU-2019-08-02-RGB
+│   |   ├── KKcorn-2019-08-02-RGB
+│   |   ├── OO-2019-08-02-RGB
+│   |   ├── BRF-2019-08-01-RGB
+│   |   ├── KKtom-2019-07-26-RGB
+│   |   ├── ...
+└── (etc...)
+```
+
+The contents of each RGB child folder (`PU-2019-08-02-RGB`, etc.) are the images from the drone's RGB SD card (from its side). You will need to make each of these RGB folders and name them. The NIR folders (`PU-2019-08-02_20-06-13`, etc.) are the "Snapshots" folders from the NIR SD card with the farm name added to the front. The contents of these folders include all of the images and a bunch of metadata files. You don't need to worry about the metadata files.
+
+**Make sure that you delete** the DCIM images (RGB SD card) and "Snapshots" sub-folders (NIR SD card) once you have moved everything onto the laptop's D: drive. This will keep those SD cards from filling up (16 and 32GB each, respectively) and will make it easier for you to figure out what you have imported already in the future.
+
+After moving everything onto the computer and cleaning the SD cards, it's time to import the images as "Surveys" in the FieldAgent Desktop app.
 
 **Launch FieldAgent Desktop Application**
 <p align="center">
 <img src='./assets/ClickFieldAgent.png' width=50%/>
 </p>
-**Choose
+
+Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out. What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guidefor this) and everything will import properly to the designated farms.
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
