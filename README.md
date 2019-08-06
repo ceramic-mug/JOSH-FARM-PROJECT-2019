@@ -27,9 +27,27 @@ Each of these project arms were approached somewhat differently due to differenc
     - [Numpy](https://numpy.org/)
 
 ### FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output
-<center>
-<img src='./assets/ClickFieldAgent.png' width=50% align="center"/>
-</center>
+
+#### Import
+
+Here is how structured my image import workflow, and it worked really well. The basic steps are:
+1. Move RGB and NIR images to folder on computer
+    - RGB: Create folders for each farm and date
+    - NIR: Add farm name to snapshot folders after moving
+2. Add images in bulk
+    - Can add multiple farms at once, **but not multiple times**. So if any farm was flown over more than once between imports, you need to import each flight seperately.
+
+After having successfully flown the drone at your farms for the week, you need to import the images from the two drone SD cards:
+- In the little green Sentera sensor (NIR)
+- In the side of the drone (RGB)
+
+
+
+**Launch FieldAgent Desktop Application**
+<p align="center">
+<img src='./assets/ClickFieldAgent.png' width=50%/>
+</p>
+**Choose
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
