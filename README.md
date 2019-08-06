@@ -13,6 +13,9 @@ I wish you well!
     - Camera Traps
 4. General Processing
 
+TODO: Add outline at top of README
+TODO: Add Stitching Troubleshooting Section
+TODO: Add section on naming conventions
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
 
 ## DRONE
@@ -28,7 +31,7 @@ Each of these project arms were approached somewhat differently due to differenc
 
 ### FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output
 
-#### Import
+#### Image Import
 
 Here is how structured my image import workflow, and it worked really well. The basic steps are:
 1. Move RGB and NIR images to folder on computer
@@ -82,7 +85,122 @@ After moving everything onto the computer and cleaning the SD cards, it's time t
 <img src='./assets/ClickFieldAgent.png' width=50%/>
 </p>
 
-Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out. What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guidefor this) and everything will import properly to the designated farms.
+Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out. What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guide)for this) and everything will import properly to their respective farms.
+
+#### NDVI Mosaic Output
+
+Once the images have imported to their respective farms and dates, you can begin stitching them into RGB and NDVI mosaics.
+
+> Quick side note: the "mosaic" is technically an orthorectified GeoTIFF. GeoTIFF is the file format (.tiff is the extension) which I'll discuss in more detail later, and "[orthorectified](https://trac.osgeo.org/ossim/wiki/orthorectification)" means that the constructed image accounts for the different perspectives of each of the images to create a true, flat image from all of them.
+
+1. Launch FieldAgent Desktop
+2. Click on the blue "All Fields" rectangle at the bottom-right of the screen
+    - A list of all of the fields will pop up
+3. Navigate to and click on the field you want to export
+4. In the farm survey viewer, select the date you want to create a mosaic for, then click the blue button with a grid on it to add the selected survey to the stitching queue:
+
+<p align="center">
+<img src='./assets/PU.png' width=50%/>
+</p>
+
+If everything goes properly, it should take anywhere between 30 minutes and 4 hours for the survey to be stitched into RGB, NIR, and NDVI mosaics (depending on the number of photos). Once that's complete, you will see "Full Mosiac ___" options in the survey left sidebar.
+
+<p align="center">
+<img src='./assets/NDVImosaic.png' width=50%/>
+</p>
+
+**To prepare the NDVI mosic for export**:
+1. Select "Full Mosaic NDVI" in the left sidebar and allow it to load onto the map (see photo above)
+2. Click on the "NDVI Toolbox" rectangle at the top-left corner of the map
+3. Under "Statistics", increase bin size to max (20)
+    - This is so that we have as granular detail as possible after exporting.
+4. Under "Color Map", set to "Grayscale"
+    - This is so that the NDVI values (which naturally have a range [-1, 1]) will be mapped to each raster layer of the exported GeoTIFF. More on this later.
+5. In the "Full Mosaic NDVI" row of the left sidebar, click the small grey settings wheel and select "Export"
+6. Select the destination folder in the popup window
+    - I recommend creating a folder specifically for your mosaic exports and naming each export with some convention that includes Farm, Date, and Type (RGB, NDVI, NIR, etc.)\
+
+When the FieldAgent app exports the GeoTIFF to the destination folder, it gives it a generic name. **IMMEDIATELY NAVIGATE TO THE FOLDER AND NAME THE FILE ACCORDING TO YOUR CONVENTION**. You have to do all the grunt work of organizing and naming so that nothing is confused or falls through the cracks.
+
+When doing analysis on Princeton corn field NDVI GeoTIFFs, this is what my output folder looked like after exporting everything I needed:
+
+```bash
+ortho
+  ├── pu-ndvi-2019-06-20.tif
+  ├── pu-ndvi-2019-06-24.tif
+  ├── pu-ndvi-2019-07-01.tif
+  ├── pu-ndvi-2019-07-08.tif
+  ├── pu-ndvi-2019-07-16.tif
+  ├── pu-ndvi-2019-07-22.tif
+  ├── pu-nir-2019-06-20.tif
+  ├── pu-nir-2019-06-24.tif
+  ├── pu-nir-2019-07-01.tif
+  ├── pu-nir-2019-07-08.tif
+  ├── pu-nir-2019-07-16.tif
+  ├── pu-nir-2019-07-22.tif
+  ├── pu-rgb-2019-06-20.tif
+  ├── pu-rgb-2019-06-24.tif
+  ├── pu-rgb-2019-07-01.tif
+  ├── pu-rgb-2019-07-08.tif
+  ├── pu-rgb-2019-07-16.tif
+  ├── pu-rgb-2019-07-22.tif
+```
+
+Notice that my naming convention allows you to clearly know the farm, the kind of mosaic, and the date. I recommend doing something similar.
+
+### Construct Shapefiles to Define Areas of Interest (AOI)
+
+When I say Areas of Interest (AOI), I really mean just that. What part of the farm do we care about? Obviously not the whole thing, because crops grow in rows and for some farms we're worried about one specific crop. For other farms, we run experiments on different sections and need to define these different sections in a way we can analyze them comparatively. That's why this next step is so important. Here we geographically define very precise sections that we care about and label them in such a way that we can handle and compare them easily later. I also think this process is really cool and am excited to share it with you.
+
+For demonstration, I'll walk you through sectioning the PU corn field. Farm Project 2019 ran an experiment across eight sections of an ~4 acre cornfield. For more information on the experiment specifics, [check out my poster](./assets/EASTMAN_puCorn_poster_FINAL.pdf). The important thing presently is that we had eight sections defined on the ground that needed to be translated into a digital file that defined and sectioned the larger NDVI mosiac for section-by-section comparison.
+
+I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and install it to follow along.
+
+**Setting Up the Workspace:**
+1. Launch QGIS
+2. If you don't have a project specified for your Farm Project (or other) work, create a new project
+    - Click the button at the top-left of the window, "New Project"
+3. Go to Project > Properties
+4. Designate a project home folder
+    - Choose a close parent to the folder that contains the exported mosaics. This makes import and handling really easy.
+5. In the "Browser" panel in the left sidebar of the main QGIS window, find your mosaics (should now be under Project Home) and drag them into the "Layers" panel (should be below the "Browser" panel)
+    - Here I recommend being pretty anal about creating groups (little paperclip icon with green + in layers panel) for your layers. I would do this farm by farm, such that each group contains all the time-steps for one specific farm.
+6. Display the RGB mosaic of the farm of interest on the map
+    - If your map viewer gets all jacked up and everything dissapapears (this happened to me all the time as I was learning QGIS), right-click on a layer and select "Zoom to Layer." This should restore your view to something manageable.
+
+**Creating the AOI file:**
+1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
+    - The icon looks like a little V with dots on it
+2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to where you want to store your shapefile and name it something conventional
+    - I recommend that you save the shapefile layer in a sub-directory of the mosaic folder, or somewhere on the same level. This will make processing a little easier. But as long as you keep track of where you save everything, no worries.
+3. Leave "File Encoding" as UTF-8
+4. For "Geometry Type", select "Polygon"
+5. Under "New Field," define a field name that matches your needs (like "Crop" or "Treatment Section")
+    - This is to identify each polygon you create within the multipolygon layer so that you can differentiate later on as you process
+6. Click "Add field"
+7. Click "OK" to exit the window
+
+Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
+
+**Building the Polygons on the AOI:**
+1. Select the shapefile layer in the "Layer" panel
+2. Click the little pencil near the top-left ("Toggle Editing")
+3. Click the green blob with a little yellow star next to it ("Create Polygon Layer")
+4. Visually identify the area of interest
+    - It may be helpful to create a "Points" shapefule layer and define vertices first to make the polygon drawing easier. Google how to do this for instructions :P
+5. Single-click each vertex in order. The polygon will automatically take shape
+6. When you've finished defining one area of interest, right-click.
+    - This will prompt you to enter data to the fields you've made. Increment integers for your IDs and use whatever label defines the polygon in the field you created when defining the shape
+    - If you realize you want a label that you didn't make a field for, don't worry. Finish making your polygons and then add that field to the shapefile layer attribute table. Google "QGIS add field to shapefile attribute table" to see how to do this if you need to.
+7. When you've finished creating polygons for all your areas of interest, click "Toggle Editing" again
+    - Save when prompted
+
+And that's it! If you took your time and defined your polygons well, then your analysis will be ON POINT! If not, then your numbers will lie, so make sure you do all this well. Here's a short visual summary:
+
+<p align="center">
+<img src='./assets/BuildShape.png' width=50%/></br>
+Creating Polygon Layer in QGIS
+</p>
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
