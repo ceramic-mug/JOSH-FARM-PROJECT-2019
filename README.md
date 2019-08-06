@@ -2,6 +2,17 @@
 
 This repository holds an annotated copy of the scripts and workflows that I put together for the PEI 2019 Farm Project. This README file will give you a detailed overview of the work. All files and folders referenced here are within this repository. To access and use the code, simply download this repository as a zip file and follow the steps below for installing python and necessary python modules.
 
+- [FARM PROJECT 2019 ~ Joshua Eastman](#farm-project-2019--joshua-eastman)
+  - [Project Arms](#project-arms)
+  - [DRONE](#drone)
+    - [FieldAgent Desktop Drone Image Import <a href="https://www.codecogs.com/eqnedit.php?latex=\rightarrow" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\rightarrow" title="\rightarrow" /></a> NDVI Mosaic Output](#fieldagent-desktop-drone-image-import-a-href%22httpswwwcodecogscomeqneditphplatexrightarrow%22-target%22blank%22img-src%22httpslatexcodecogscomgiflatexrightarrow%22-title%22rightarrow%22-a-ndvi-mosaic-output)
+      - [Image Import](#image-import)
+      - [NDVI Mosaic Output](#ndvi-mosaic-output)
+    - [Construct Shapefiles to Define Areas of Interest (AOI)](#construct-shapefiles-to-define-areas-of-interest-aoi)
+  - [ARABLE](#arable)
+    - [Getting the Data](#getting-the-data)
+    - [Handling the Data](#handling-the-data)
+
 I wish you well!
 
 ## Project Arms
@@ -13,13 +24,13 @@ I wish you well!
     - Camera Traps
 4. General Processing
 
-TODO: Add outline at top of README
+<!-- TODO: Add outline at top of README -->
 
-TODO: Add Stitching Troubleshooting Section
+<!-- TODO: Add Stitching Troubleshooting Section -->
 
-TODO: Add section on naming conventions
+<!-- TODO: Add section on naming conventions -->
 
-TODO: Add GIS CRS Troubleshooting Section
+<!-- TODO: Add GIS CRS Troubleshooting Section -->
 
 Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
 
@@ -188,6 +199,13 @@ I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and instal
 Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
 
 **Building the Polygons on the AOI:**
+Here's a short visual summary:
+
+<p align="center">
+<img src='./assets/BuildShape.png' width=80%/></br>
+Creating Polygon Layer in QGIS
+</p>
+
 1. Select the shapefile layer in the "Layer" panel
 2. Click the little pencil near the top-left ("Toggle Editing")
 3. Click the green blob with a little yellow star next to it ("Create Polygon Layer")
@@ -200,12 +218,7 @@ Before the next step, make sure that snapping is turned on in QGIS. Do this by g
 7. When you've finished creating polygons for all your areas of interest, click "Toggle Editing" again
     - Save when prompted
 
-And that's it! If you took your time and defined your polygons well, then your analysis will be ON POINT! If not, then your numbers will lie, so make sure you do all this well. Here's a short visual summary:
-
-<p align="center">
-<img src='./assets/BuildShape.png' width=80%/></br>
-Creating Polygon Layer in QGIS
-</p>
+And that's it! If you took your time and defined your polygons well, then your analysis will be ON POINT! If not, then your numbers will lie, so make sure you do all this well.
 
 ## ARABLE
 The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
@@ -227,7 +240,6 @@ python ./src/ArableGrep.py
 This will create an "arable_data" directory within the parent directory (same level as "src") and create csv files containing hourly, daily, and health data for all of the sensors within that folder. If any of these csv files already exists, the program will intelligently download all of the most recent data (between the last sync and the present) and append it to the existing csv file.
 
 After running this program, your "arable_data" directory should look something like this: 
-<!-- TODO:  add folder output -->
 ```bash
 .
 ├── arable_data
