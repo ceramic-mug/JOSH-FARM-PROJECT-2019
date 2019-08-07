@@ -30,6 +30,9 @@ I wish you well!
     - [Getting the Data](#getting-the-data)
       - [Limitations](#limitations)
     - [Handling the Data](#handling-the-data)
+  - [BUGS, DEER, and NUTRIENTS](#bugs-deer-and-nutrients)
+    - [BUGS](#bugs)
+      - [Note](#note)
 
 ## Project Arms
 
@@ -40,8 +43,6 @@ I wish you well!
     - Soil Nutrients
     - Camera Traps
 4. General Processing
-
-<!-- TODO: Add outline at top of README -->
 
 <!-- TODO: Add Stitching Troubleshooting Section -->
 
@@ -451,6 +452,8 @@ Running `python geoProcessing.py` in the correctly setup environment will produc
 
 ##### Descriptions
 
+> The CSV-format NDVI data is in OUTPUTS/mean_NDVI and OUTPUTS/NDVI_csv. Descriptions for these are below
+
 So what's in this folder? You will notice that in the top-level folder (where [geoProcessing.py](./drone/geoProcessing.py) resides) a new directory was created called "OUTPUTS." Every other output is nested in this "OUTPUTS" folder.
 
 Within this "OUTPUTS" folder, you'll find:
@@ -559,4 +562,41 @@ However, early on in the summer I built a wrangling program with some handy func
 
 - General Wrangling Program: [./src/ArableWrangle.py](./src/ArableWrangle.py)
 
-Not all of the functions in [ArableWrangle](./src/ArableWrangle.py) may be useful to you. I would look through this script and identify things that are helpful, implementing only those aspects that are benificial. This program wasn't cleanly finished and packaged because my work shifted to Princeton cornfield only at the end of the 2019 Farm Project, which meant that handling *all* the Arable data was no longer important to me. Development of this program therefore ground to a halt.
+Not all of the functions in [ArableWrangle](./src/ArableWrangle.py) may be useful to you. I would look through this script and identify things that are helpful, implementing only those aspects that are benificial. This program wasn't cleanly finished and packaged because my work shifted to Princeton cornfield only at the end of the 2019 Farm Project, which meant that handling *all* the Arable data was no longer important to me. Development of this specific program therefore ground to a halt.
+
+## BUGS, DEER, and NUTRIENTS
+
+Other vectors we observed and for which we gathered data over time were:
+
+- Insects
+- Deer
+- Soil Nutrients
+
+Each of these had distinct modes of data collection and analysis:
+
+<p align=center>
+<img src = "./assets/Manual.png"/>
+<img src = "./assets/Lab.png"/>
+</p>
+
+Because of this, I had to be a little creative with converting these odd sets of information to numerical data that can be statistically analyzed. Basically, I thought through numerical conversions for each of the above datasets (Abigail Baskind determined the best way to convert the Soil Nutrient data). Here are the ways I processed the above data.
+
+### BUGS
+
+We spent a lot of time collecting bugs on fly, ground, and pitfall traps and entering information about them into spreadsheets for each farm we studied (more generally, for each Arable sensor we deployed). An insect spreadsheet would look generally like this:
+
+|date|sensor|trap|species|count|legs|wings|color|description|segments|photo|
+|---|---|---|---|---|---|---|---|---|---|---|
+|2019-07-01|1|G|fly|16|6|2|black|...|3|...|
+etc.
+
+and would have many, many rows for any given date. The "sensor" column was a proxy for the plant type since each sensor corresponded to a specific plant (or, in the case of PU experiment, each sensor corresponded to one of the eight treatment sections).
+
+To numerically analyze this data, I decided to convert the list of "counts" column per date per sensor into Shannon biodiversity index.
+
+#### Note
+
+- Using Shannon biodiversity index the way I did was not perfect for a number of reasons
+  - The index is not a true measure of biodiversity; it's an index. This means that another computation should be performed using the Shannon's index in order to get a true diversity value. I didn't have time to research and determine what this deeper computation should be.
+  - I computed Shannon's index per sensor per collection date, but this meant that I was computing over all three trap types. My Shannon calculation assumed that each row was a distinct species, but running the computation over all three traps together meant that some species were duplicated (especially between the ground and fly trap).
+    - **Resolution**: give each species an ID when you first encounter it in the year (even if you don't know it's actual species name) and tag each consecutive encounter with that insect type with the ID you make at the beginning. Keep an ID dictionary sheet or folder with images to help you keep track of each bug's ID. This would allow you to see how specific bug populations change over time, which would be best. It would also allow you to differentiate species properly between fly, ground, and pitfall traps for my Shannon computation.

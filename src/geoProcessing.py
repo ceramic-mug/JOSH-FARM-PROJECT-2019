@@ -17,16 +17,23 @@
 ##      NECESSARY FOLDER STRUCTURE      ##
 ##       and FILE NAME CONVENTIONS      ##
 ##                                      ##
-##     parent                           ##
-##       |- geoProcessing.py            ##
-##       |- farm1_NDVI_YYYY_MM_DD.tif   ##
-##       |- farm1_RGB_YYYY_MM_DD.tif    ##        
-##       |- farm2_NDVI_YYYY_MM_DD.tif   ##
-##       |- farm2_RGB_YYYY_MM_DD.tif    ##    
-##       |- AOI                         ##
-##           |- farm1.shp               ##
-##           |- farm2.shp               ##
-##       etc                            ##
+## parent                               ##
+##   |- geoProcessing.py                ##
+##   |- farm1                           ##
+##   |     |- farm1_NDVI_YYYY_MM_DD.tif ##
+##   |     |- farm1_RGB_YYYY_MM_DD.tif  ##
+##   |     |- etc...                    ##
+##   |- farm2                           ##      
+##   |     |- farm2_NDVI_YYYY_MM_DD.tif ##
+##   |     |- farm2_RGB_YYYY_MM_DD.tif  ##    
+##   |     |- etc...                    ## 
+##   |- AOI                             ##
+##   |    |- farm1_AOI.shp              ##
+##   |    |- farm2_AOI.shp              ##
+##   |- FIELD                           ##
+##       |- farm1_field.shp             ##
+##       |- farm2_field.shp             ##
+##                                      ##
 ##                                      ##
 ##########################################
 
@@ -59,9 +66,6 @@ import re
 # For date and time handling and computing
 import datetime
 
-# For data visualization
-import matplotlib.pyplot as plt
-
 # For tuning input GeoTIFFs to AOI layers
 from shapely.geometry import mapping
 from rasterio.plot import plotting_extent
@@ -70,15 +74,9 @@ from rasterio.mask import mask
 # For traversing and interacting with folder structure
 import os
 
-# For more data visualization
-import seaborn as sns
-sns.set(rc={'figure.figsize':(6,6)})
-
 #######################################################################
 ############## Lasciate ogne speranza, voi ch'intrate #################
 #######################################################################
-
-
 
 # Take in a filename with the correct naming convention and
 # return a datetime object of the corresponding date
