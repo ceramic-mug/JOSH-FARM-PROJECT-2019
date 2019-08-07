@@ -19,12 +19,13 @@ I wish you well!
       - [Building the Polygons on the AOI](#building-the-polygons-on-the-aoi)
     - [Using Python for Bulk GeoTIFF Processing](#using-python-for-bulk-geotiff-processing)
       - [Reguired Python Modules](#reguired-python-modules)
-      - [Folder Structure](#folder-structure)
+      - [Required Folder Structure](#required-folder-structure)
       - [Running geoProcessing.py](#running-geoprocessingpy)
       - [Outputs](#outputs)
         - [Folder After Running](#folder-after-running)
         - [Descriptions](#descriptions)
       - [Test Using This Repository](#test-using-this-repository)
+      - [Notes](#notes)
   - [ARABLE](#arable)
     - [Getting the Data](#getting-the-data)
       - [Limitations](#limitations)
@@ -32,8 +33,8 @@ I wish you well!
 
 ## Project Arms
 
-1. [Drone Data](##DRONE)
-2. [Arable Sensor Data](##ARABLE)
+1. [Drone Data](#DRONE)
+2. [Arable Sensor Data](#ARABLE)
 3. Other Data
     - Bugs
     - Soil Nutrients
@@ -264,6 +265,8 @@ Lengthy descriptions of these outputs can be found under "[Outputs](#outputs)" d
 
 I know that's a lot. Some of these outputs are used as intermediates steps for others, and you may find a use (either graphically, for presentation purposes, or numerically) for any one of them. The easist outputs to use for statistical analysis are the csv file that contains the mean NDVI value for each AOI for each time step and a BIG csv file that contains the NDVI file for every pixel per aoi per time step.
 
+The [geoProcessing.py](./drone/geoProcessing.py) file is also **HEAVILY COMMENTED**, so look through it to have an idea of what it's doing.
+
 #### Reguired Python Modules
 
 For [geoProcessing.py](./drone/geoProcessing.py) to run, you need to have an up-to-date Python environment installed. You also need the following modules:
@@ -286,7 +289,7 @@ pip install [module]
 
 for all of the above modules (e.g. `pip install rasterio`) to make sure you have installed, up-to-date versions. If any of these won't install, I'm afraid you won't be able to run [geoProcessing.py](./drone/geoProcessing.py). You'll need to troubleshoot on your own why any one of these modules wouldn't install. Ideally, you won't have any trouble running `pip install [module]` for any of the above modules.
 
-#### Folder Structure
+#### Required Folder Structure
 
 The program is a script named ["geoProcessing.py"](./drone/geoProcessing.py). In this repository, you'll find copies in [src](./src) and [drone](./drone). These are identical. I duplicated this [geoProcessing.py](./drone/geoProcessing.py) in this repository so that you could find it with all the other programs (in [src](./src)) and do a test run with it in correctly built folder (in [drone](./drone)).
 
@@ -486,6 +489,16 @@ python geoProcessing.py PU
 ```
 
 If you have Python and the necessary modules properly installed, the process should complete and the [above output folder](#folder-after-running) will be produced, allowing you to see how everything works.
+
+#### Notes
+
+- For any farm, for any date's NDVI or RGB full mosaic output, you must have the other for [geoProcessing.py](./drone/geoProcessing.py) to run. In other words, if in "PU" I have "PU_NDVI_2019_07_16.tif" then I **MUST** also have "PU_RGB_2019_07_16.tif" (or vice-versus). Otherwise the program will throw an error.
+  - **Workaround** If all you want to do is the NDVI processing: in [geoProcessing.py](./drone/geoProcessing.py), edit out the parts in the main method (bottom of file) that throw an exception for the rgb_r list length being less than 1, and then in the function "allTheThings()" comment out the ones pertaining to RGB.
+- For any farm, you **MUST** have an AOI file in the "AOI" folder
+  - All farm names for the same farm must be identical.
+  - **If you do multiple flights for different sections of the same farm**:
+    - Treat these different flights as if they're different farms. For example, in 2019 we used "CG_Tom" and "CG_ZSC" to refer to Cherry Grove Tomato flights and Cherry Grove Zucchini and Swiss Chard flights respectively.
+- I know this is complicated. If you have any specific use questions, feel free to email me at jeastman@princeton.edu and I'll walk you through it.
 
 ## ARABLE
 
