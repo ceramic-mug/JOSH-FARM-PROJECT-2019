@@ -1,2 +1,4 @@
 *.csv
 arable_data
+.*
+drone/OUTPUTS
