@@ -575,8 +575,8 @@ Other vectors we observed and for which we gathered data over time were:
 Each of these had distinct modes of data collection and analysis:
 
 <p align=center>
-<img src = "./assets/Manual.png"/>
-<img src = "./assets/Lab.png"/>
+<img src = "./assets/Manual.png" width=70%/>
+<img src = "./assets/Lab.png" width=65%/>
 </p>
 
 Because of this, I had to be a little creative with converting these odd sets of information to numerical data that can be statistically analyzed. Basically, I thought through numerical conversions for each of the above datasets (Abigail Baskind determined the best way to convert the Soil Nutrient data). Here are the ways I processed the above data.
