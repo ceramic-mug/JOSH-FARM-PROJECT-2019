@@ -14,7 +14,17 @@ I wish you well!
       - [Image Import](#image-import)
       - [NDVI Mosaic Output](#ndvi-mosaic-output)
     - [Construct Shapefiles to Define Areas of Interest (AOI)](#construct-shapefiles-to-define-areas-of-interest-aoi)
+      - [Setting Up the Workspace](#setting-up-the-workspace)
+      - [Creating the AOI file](#creating-the-aoi-file)
+      - [Building the Polygons on the AOI](#building-the-polygons-on-the-aoi)
     - [Using Python for Bulk GeoTIFF Processing](#using-python-for-bulk-geotiff-processing)
+      - [Reguired Python Modules](#reguired-python-modules)
+      - [Folder Structure](#folder-structure)
+      - [Running geoProcessing.py](#running-geoprocessingpy)
+      - [Outputs](#outputs)
+        - [Folder After Running](#folder-after-running)
+        - [Descriptions](#descriptions)
+      - [Test Using This Repository](#test-using-this-repository)
   - [ARABLE](#arable)
     - [Getting the Data](#getting-the-data)
       - [Limitations](#limitations)
@@ -144,6 +154,7 @@ If everything goes properly, it should take anywhere between 30 minutes and 4 ho
     - This is so that we have as granular detail as possible after exporting.
 4. Under "Color Map", set to "Grayscale"
     - This is so that the NDVI values (which naturally have a range [-1, 1]) will be mapped to each raster layer of the exported GeoTIFF. More on this later.
+    - **YOU MUST USE GRAYSCALE FOR MY BATCH GEOPROCESSING PYTHON APP TO WORK**: [geoProcessing.py](./drone/geoProcessing.py)
 5. In the "Full Mosaic NDVI" row of the left sidebar, click the small grey settings wheel and select "Export"
 6. Select the destination folder in the popup window
     - I recommend creating a folder specifically for your mosaic exports and naming each export with some convention that includes Farm, Date, and Type (RGB, NDVI, NIR, etc.)\
@@ -184,7 +195,7 @@ For demonstration, I'll walk you through sectioning the PU corn field. Farm Proj
 
 I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and install it to follow along.
 
-**Setting Up the Workspace:**
+#### Setting Up the Workspace
 
 1. Launch QGIS
 2. If you don't have a project specified for your Farm Project (or other) work, create a new project
@@ -197,7 +208,7 @@ I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and instal
 6. Display the RGB mosaic of the farm of interest on the map
     - If your map viewer gets all jacked up and everything dissapapears (this happened to me all the time as I was learning QGIS), right-click on a layer and select "Zoom to Layer." This should restore your view to something manageable.
 
-**Creating the AOI file:**
+#### Creating the AOI file
 
 1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
     - The icon looks like a little V with dots on it
@@ -212,7 +223,8 @@ I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and instal
 
 Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
 
-**Building the Polygons on the AOI:**
+#### Building the Polygons on the AOI
+
 Here's a short visual summary:
 
 <p align="center">
@@ -236,7 +248,244 @@ And that's it! If you took your time and defined your polygons well, then your a
 
 ### Using Python for Bulk GeoTIFF Processing
 
-I wrote the [geoProcessing.py](./src/geoProcessing.py) file to take all of the exported GeoTIFF files TODO:
+I wrote the [geoProcessing.py](./drone/geoProcessing.py) file to take all of the exported GeoTIFF files (RGB and NDVI) and:
+
+1. Extract the NDVI values for each area of interest for every time step and write these to a new GeoTIFF
+2. Write the NDVI value for *every* pixel to a csv file per AOI per flight date
+3. Take the mean NDVI value per AOI per flight date and create one maste csv file holding those values
+4. Crop the pseudo-NDVI Sentera output and export to new GeoTIFFs for every flight date
+   1. By whole-field of interest
+   2. By AOI
+5. Crop the Sentera RGB output and export to new GeoTIFFs for every flight date
+   1. By whole-field of interest
+   2. By AOI
+
+Lengthy descriptions of these outputs can be found under "[Outputs](#outputs)" down below.
+
+I know that's a lot. Some of these outputs are used as intermediates steps for others, and you may find a use (either graphically, for presentation purposes, or numerically) for any one of them. The easist outputs to use for statistical analysis are the csv file that contains the mean NDVI value for each AOI for each time step and a BIG csv file that contains the NDVI file for every pixel per aoi per time step.
+
+#### Reguired Python Modules
+
+For [geoProcessing.py](./drone/geoProcessing.py) to run, you need to have an up-to-date Python environment installed. You also need the following modules:
+
+- sys
+- glob
+- rasterio
+- pandas
+- numpy
+- geopandas
+- re
+- datetime
+- os
+
+Before attempting to run [geoProcessing.py](./drone/geoProcessing.py), I would run
+
+```bash
+pip install [module]
+```
+
+for all of the above modules (e.g. `pip install rasterio`) to make sure you have installed, up-to-date versions. If any of these won't install, I'm afraid you won't be able to run [geoProcessing.py](./drone/geoProcessing.py). You'll need to troubleshoot on your own why any one of these modules wouldn't install. Ideally, you won't have any trouble running `pip install [module]` for any of the above modules.
+
+#### Folder Structure
+
+The program is a script named ["geoProcessing.py"](./drone/geoProcessing.py). In this repository, you'll find copies in [src](./src) and [drone](./drone). These are identical. I duplicated this [geoProcessing.py](./drone/geoProcessing.py) in this repository so that you could find it with all the other programs (in [src](./src)) and do a test run with it in correctly built folder (in [drone](./drone)).
+
+For [geoProcessing.py](./drone/geoProcessing.py) to run, **it must be in a specific folder environement** and you must have certain files in place and properly named. This repository's [drone](./drone) folder is an example of everything you need for [geoProcessing.py](./drone/geoProcessing.py) to run properly and completely. Here's an outline of folder structure and required files:
+
+**[drone](./drone):**
+
+```bash
+.
+├── AOI # Folder containing shapefile and accessory files per farm that describes the areas of interest (AOI)
+│   ├── PU_AOI.cpg
+│   ├── PU_AOI.dbf
+│   ├── PU_AOI.prj
+│   ├── PU_AOI.qpj
+│   ├── PU_AOI.shp
+│   └── PU_AOI.shx
+├── FIELD # Folder containing shapefile and accessory files per farm describing field to cookie-cut it out of messy Sentera export
+│   ├── PU_field.cpg ## The FIELD files are OPTIONAL. The program will run without them. Everything else is necessary.
+│   ├── PU_field.dbf
+│   ├── PU_field.prj
+│   ├── PU_field.qpj
+│   ├── PU_field.shp
+│   └── PU_field.shx
+├── PU # Folder for each farm containing Sentera RGB and greyscale NDVI Full Mosaic exports
+│   ├── PU_NDVI_2019_06_20.tif
+│   ├── PU_NDVI_2019_06_24.tif
+│   ├── PU_NDVI_2019_07_01.tif
+│   ├── PU_NDVI_2019_07_08.tif
+│   ├── PU_NDVI_2019_07_16.tif
+│   ├── PU_NDVI_2019_07_22.tif
+│   ├── PU_RGB_2019_06_20.tif
+│   ├── PU_RGB_2019_06_24.tif
+│   ├── PU_RGB_2019_07_01.tif
+│   ├── PU_RGB_2019_07_08.tif
+│   ├── PU_RGB_2019_07_16.tif
+│   └── PU_RGB_2019_07_22.tif
+└── geoProcessing.py # The program
+```
+
+The above folder structure has everything in place to run the full [geoProcessing.py](./drone/geoProcessing.py) for farm "PU". "PU" here is the farm name that the program uses to find all of its constituent shapefiles and output things to proper folders.
+
+For clarity, your parent folder (that contains [geoProcessing.py](./drone/geoProcessing.py)) MUST have:
+
+- An "AOI" folder
+  - This folder MUST contain a farm_AOI.shp and accessory files for every farm that you run the program on
+- A "FIELD" folder
+  - This folder is *not* absolutely necessary. Put farm_field.shp and accessory files in here if you want to cut out a piece of the larger Sentera export for graphical use or whole-farm NDVI results
+- A farm folder
+  - for every farm that you want to process, you need to create a folder by the name of that farm (above, "PU") that contains all RGB and NDVI full mosaic exports from Sentera FieldAgent.
+  - **NAMING CONVENTION MUST FOLLOW THE ABOVE PATTERN**: farm_RGB_YYYY_MM_DD.tif and farm_NDVI_YYY_MM_DD.tif respectively
+
+#### Running [geoProcessing.py](./drone/geoProcessing.py)
+
+To run [geoProcessing.py](./drone/geoProcessing.py):
+
+1. Open terminal shell
+    - MAC: "Terminal" application
+    - WINDOWS: "Command Prompt" application
+2. Navigate to the above directory
+3. Run "python geoProcessing.py [farm]"
+
+Here's how I do it in Terminal on my Mac:
+
+```bash
+Last login: Wed Aug  7 12:33:35 on ttys002
+🌿 [joshua] % cd Github # cd sets current working directory and is used to navigate from one folder toa sub-folder
+🌿 [Github] % cd JOSH-FARM-PROJECT-2019
+🌿 [JOSH-FARM-PROJECT-2019] % cd drone
+🌿 [drone] % ls # ls lists folder contents
+AOI     FIELD     OUTPUTS     PU    geoProcessing.py
+🌿 [drone] % python geoProcessing.py PU # RUN THE PROGRAM
+```
+
+Here is the program run command alone for clarity:
+
+```bash
+python geoProcessing.py PU
+```
+
+Where "PU" again is the farm name that I pass in as an argument and that the program uses to find all of the proper files and name all of the outputs.
+
+#### Outputs
+
+Running `python geoProcessing.py` in the correctly setup environment will produce many outputs. I briefly described them [above](#using-python-for-bulk-geotiff-processing). Here is a more detailed overview and an example of an output structure:
+
+##### Folder After Running
+
+```bash
+.
+├── AOI
+│   ├── PU_AOI.cpg
+│   ├── PU_AOI.dbf
+│   ├── PU_AOI.prj
+│   ├── PU_AOI.qpj
+│   ├── PU_AOI.shp
+│   └── PU_AOI.shx
+├── FIELD
+│   ├── PU_field.cpg
+│   ├── PU_field.dbf
+│   ├── PU_field.prj
+│   ├── PU_field.qpj
+│   ├── PU_field.shp
+│   └── PU_field.shx
+├── OUTPUTS
+│   ├── NDVI_AOI_tiffs
+│   │   └── PU
+│   │       ├── PU_NDVI_ocf_cropped_2019-06-20.tif
+│   │       ├── PU_NDVI_ocf_cropped_2019-06-24.tif
+│   │       ├── PU_NDVI_shn_cropped_2019-07-16.tif
+│   │       ├── ...
+│   │       ├── PU_trueNDVI_ocf_2019-06-20.tif
+│   │       ├── PU_trueNDVI_ocf_2019-06-24.tif
+│   │       ├── PU_trueNDVI_ocf_2019-07-01.tif
+│   │       ├── ...
+│   ├── NDVI_Field_tiffs
+│   │   └── PU
+│   │       ├── PU0_trueNDVI_field_2019-06-20.tif
+│   │       ├── PU0_trueNDVI_field_2019-06-24.tif
+│   │       ├── PU0_trueNDVI_field_2019-07-01.tif
+│   │       ├── ...
+│   ├── NDVI_WholeField_tiffs
+│   │   └── PU
+│   │       ├── PU_trueNDVI_2019_06_20.tif
+│   │       ├── PU_trueNDVI_2019_06_24.tif
+│   │       ├── PU_trueNDVI_2019_07_01.tif
+│   │       ├── ...
+│   ├── NDVI_csv
+│   │   └── PU
+│   │       ├── PU_aoi_ndvi_ocf_2019-06-20.csv
+│   │       ├── PU_aoi_ndvi_ocf_2019-06-24.csv
+│   │       ├── PU_aoi_ndvi_ocf_2019-07-01.csv
+│   │       ├── ...
+│   │       └── PU_bigPapa.csv
+│   ├── RGB_AOI_tiffs
+│   │   └── PU
+│   │       ├── PU_RGB_ocf_cropped_2019-06-20.tif
+│   │       ├── PU_RGB_ocf_cropped_2019-06-24.tif
+│   │       ├── PU_RGB_ocf_cropped_2019-07-01.tif
+│   │       ├── ...
+│   ├── RGB_Field_tiffs
+│   │   └── PU
+│   │       ├── PU0_rgb_field_2019-06-20.tif
+│   │       ├── PU0_rgb_field_2019-06-24.tif
+│   │       ├── PU0_rgb_field_2019-07-01.tif
+│   │       ├── ...
+│   └── mean_NDVI
+│       └── PU_mean_ndvi.csv
+├── PU
+│   ├── PU_NDVI_2019_06_20.tif
+│   ├── PU_NDVI_2019_06_24.tif
+│   ├── PU_NDVI_2019_07_01.tif
+│   ├── ...
+│   ├── PU_RGB_2019_06_20.tif
+│   ├── PU_RGB_2019_06_24.tif
+│   ├── PU_RGB_2019_07_01.tif
+│   ├── ...
+└── geoProcessing.py
+```
+
+##### Descriptions
+
+So what's in this folder? You will notice that in the top-level folder (where [geoProcessing.py](./drone/geoProcessing.py) resides) a new directory was created called "OUTPUTS." Every other output is nested in this "OUTPUTS" folder.
+
+Within this "OUTPUTS" folder, you'll find:
+
+- **mean_NDVI**
+  - Contains one csv for each farm that you run the program on. Each csv contains three columns of data:
+    - aoi
+    - date
+    - mean_ndvi
+  - for each aoi, for each date, the mean-ndvi refers to the average NDVI value for all the pixels in the aois defined by the farm_AOI.shp file. For the PU example above, each "aoi" is the experimental section. For most farms, each "aoi" will be a row of a specific crop.
+- **NDVI_AOI_tiffs**
+  - This folder contains sub-directories for every farm. Within the subdirectory, you will find two kinds of files:
+    - **pseudo-NDVI:** cropped grayscale pseudo-NDVI images (labeled "NDVI" in their names). These GeoTIFF files have RGBA bands and are basically cropped Sentera exports
+    - **trueNDVI:** cropped true NDVI GeoTIFFS (labeled "trueNDVI" in their names). These GeoTIFF files have only 1 band with pixel range [-1, 1] corresponding to a true NDVI value
+- **NDVI_csv**
+  - This folder contains sub-folders for each farm you run this program on. Within each of thes sub-folders, you'll find two kinds of files:
+    - A LONG list of csvs, one per AOI per date, each containing a single column of NDVI values for every single pixel in that AOI
+    - A "farm_bigPapa.csv" that's an aggregate of all the other csvs. It contains three columns: "aoi","date","ndvi", and each row refers to a single pixel.
+  - **The files in this folder will allow you to look at the NDVI values for any given AOI as a DISTRIBUTION rather than a single "mean" value given by the Arable Sensor or held in the mean_NDVI folder above. I think these are the most significant files output in this process. It's basically a population sample.**
+- **NDVI_Field_tiffs**
+  - Sub-folder for every farm containing trueNDVI [-1, 1] single-band GeoTIFFs defined by shapes in ./FIELD/farm_field.shp
+  - These files are most useful for visualization, but could be further analyzed for whole-farm dynamics if the shape is defined well
+- **NDVI_WholeField_tiffs**
+  - Sub-folder for every farm containing Sentera FieldAgent NDVI exports converted to single-band trueNDVI [-1, 1] GeoTIFFs
+- **RGB_AOI_tiffs**
+  - Sub-folder for every farm containing Sentera RGB mosaics cropped per AOI per date. Useful for visualization to compare a single AOI over time side-by-side
+- **RGB_Field_tiffs**
+  - Sub-folder for every farm containing Sentera RGB mosaics cropped to the field perimeter defined by shapes in ./FIELD/farm_field.shp. Very useful for side-by-side visualizations. I used these in my end-of-summer poster presentation to illustrate how the field changed over time.
+
+#### Test Using This Repository
+
+This repository has all the files and directory structure built-in to test run [geoProcessing.py](./drone/geoProcessing.py). If you download the repository, navigate into the "drone" sub-directory and then run the [command](#running-geoprocessingpydronegeoprocessingpy):
+
+```bash
+python geoProcessing.py PU
+```
+
+If you have Python and the necessary modules properly installed, the process should complete and the [above output folder](#folder-after-running) will be produced, allowing you to see how everything works.
 
 ## ARABLE
 

@@ -94,7 +94,7 @@ def dayParse(filename):
 
 def getAOIs():
     try:
-        aois = gpd.read_file(os.path.join(my_path,'./AOI/'+farm+'.shp'))
+        aois = gpd.read_file(os.path.join(my_path,'./AOI/'+farm+'_AOI.shp'))
     except:
         raise Exception('No shapefile for '+farm+' in AOI folder')
 
@@ -102,7 +102,7 @@ def getAOIs():
 
 def getFields():
     # Check to see if defining shapefile layer exists
-    fields_shapes = glob.glob('./FIELD/'+farm+'*.shp')
+    fields_shapes = glob.glob('./FIELD/'+farm+'_field.shp')
 
     # If none exist, exit
     if len(fields_shapes) < 1:
@@ -333,13 +333,9 @@ def aoi_rgbCROP(dates):
 # Creates one master csv that contains the average NDVI 
 # value for each aoi at each time step
 def meanNDVI(vals,row,date):
-    output = output_dict['mean_csv']+farm+'_mean_ndvi.csv'
-    if not os.path.exists(output):
-        with open(output,'w') as DUDE:
-            DUDE.write('aoi,date,mean_ndvi')
 
-    # Append to by-farm Bigpapa
-    with open(output,'a') as YES:
+    # Append to by-farm mean
+    with open(mNDVI,'a') as YES:
         newline ='\n'+row['Kind']+','+date.strftime('%Y-%m-%d')+','+str(np.mean(vals))
         YES.write(newline)
     
@@ -397,6 +393,10 @@ for key in output_dict.keys():
     path = output_dict[key]
     if not os.path.exists(path):
         os.makedirs(path)
+
+mNDVI = output_dict['mean_csv']+farm+'_mean_ndvi.csv'
+with open(mNDVI,'w') as DUDE:
+    DUDE.write('aoi,date,mean_ndvi')
 
 # do the things!
 allTheThings()
