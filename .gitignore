@@ -1,4 +1,3 @@
-*.csv
-arable_data
+./arable_data
 .*
 ./drone/OUTPUTS/*
