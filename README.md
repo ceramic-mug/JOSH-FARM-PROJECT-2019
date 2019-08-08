@@ -33,8 +33,8 @@ I wish you well!
   - [BUGS, DEER, and NUTRIENTS](#bugs-deer-and-nutrients)
     - [BUGS](#bugs)
       - [Shannon Index](#shannon-index)
-      - [My implementation of the Shannon Index](#my-implementation-of-the-shannon-index)
-      - [bugs.py](#bugspy)
+      - [Implementing Shannon Index](#implementing-shannon-index)
+      - [My program: bugs.py](#my-program-bugspy)
         - [Folder structure for bugs.py](#folder-structure-for-bugspy)
         - [Running bugs.py](#running-bugspy)
         - [Folder after running](#folder-after-running)
@@ -615,7 +615,7 @@ where R is the number of species and p_i is the proportion of individuals belong
 
 Read more about the Shannon index on [Wikipedia](https://en.wikipedia.org/wiki/Diversity_index#Shannon_index) and Google around for descriptions.
 
-#### My implementation of the Shannon Index
+#### Implementing Shannon Index
 
 A Python implementation of the shannon index exists in the `skbio` module. [`skbio`](http://scikit-bio.org/) is a huge bioinformatics module containing many classes and functions. Our Shannon function can be imported directly with
 
@@ -651,7 +651,7 @@ Out: 1.6618697315865685
 
 So, for the big sheet of bug data, I put this in a for loop and called `shannon` on each list of "counts" for the given date for the given sensor. This resulted in one shannon index per date per sensor. This is implemented on a per-farm basis with my [bugs.py](./src/bugs.py) program.
 
-#### [bugs.py](./src/bugs.py)
+#### My program: [bugs.py](./src/bugs.py)
 
 [bugs.py](./src/bugs.py) takes a raw csv file that contains a bug spreadsheet similar (though not necessarily identical) to the ones we made in 2019, computes shannon indices per date per sensor, and outputs these to a new csv of a per-farm basis.
 
