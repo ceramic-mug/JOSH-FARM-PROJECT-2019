@@ -32,6 +32,13 @@ I wish you well!
     - [Handling the Data](#handling-the-data)
   - [BUGS, DEER, and NUTRIENTS](#bugs-deer-and-nutrients)
     - [BUGS](#bugs)
+      - [Shannon Index](#shannon-index)
+      - [My implementation of the Shannon Index](#my-implementation-of-the-shannon-index)
+      - [bugs.py](#bugspy)
+        - [Folder structure for bugs.py](#folder-structure-for-bugspy)
+        - [Running bugs.py](#running-bugspy)
+        - [Folder after running](#folder-after-running)
+        - [Test it yourself](#test-it-yourself)
       - [Note](#note)
 
 ## Project Arms
@@ -593,6 +600,150 @@ etc.
 and would have many, many rows for any given date. The "sensor" column was a proxy for the plant type since each sensor corresponded to a specific plant (or, in the case of PU experiment, each sensor corresponded to one of the eight treatment sections).
 
 To numerically analyze this data, I decided to convert the list of "counts" column per date per sensor into Shannon biodiversity index.
+
+#### Shannon Index
+
+The Shannon index is a classic biodiversity index. In truth, I don't know too much about it or its application and used it because I felt that it was a convenient and applicable solution to convert our huge bug spreadsheets to arrays of useful data.
+
+The Shannon index is described as
+
+<p align=center>
+<img src = "./assets/shannon.svg" width=70%/>
+</p>
+
+where R is the number of species and p_i is the proportion of individuals belonginf to species i. Verbally: the Shannon index is a sum over all the species of the product of the proportion of individuals belonging to that species (out of all the individuals) and the natural logarithm of that proportion. In other words, say you have two species, one with 2 individuals and one with 5. The proportion p_i for species 1 would be 2/7 and p_i for species 2 would be 5/7. This scales with the number of species and individuals you have.
+
+Read more about the Shannon index on [Wikipedia](https://en.wikipedia.org/wiki/Diversity_index#Shannon_index) and Google around for descriptions.
+
+#### My implementation of the Shannon Index
+
+A Python implementation of the shannon index exists in the `skbio` module. [`skbio`](http://scikit-bio.org/) is a huge bioinformatics module containing many classes and functions. Our Shannon function can be imported directly with
+
+```python
+from skbio.diversity.alpha import shannon
+```
+
+For this to work, you must have the module `scikit-bio` installed on your computer. Run:
+
+```bash
+pip install scikit-bio
+```
+
+to install.
+
+The `shannon` function takes as its input a list of couts of individuals. For example, if we had the following bug-data:
+
+|date|species|count|
+|---|---|---|
+|2019-07-01|a|17|
+|2019-07-01|b|22|
+|2019-07-01|c|3|
+|2019-07-01|d|1|
+|2019-07-01|e|1|
+|2019-07-01|f|1|
+
+A call on `shannon` for the date 2019-07-01 would look like:
+
+```python
+In: shannon([17, 22, 3, 1, 1, 1])
+Out: 1.6618697315865685
+```
+
+So, for the big sheet of bug data, I put this in a for loop and called `shannon` on each list of "counts" for the given date for the given sensor. This resulted in one shannon index per date per sensor. This is implemented on a per-farm basis with my [bugs.py](./src/bugs.py) program.
+
+#### [bugs.py](./src/bugs.py)
+
+[bugs.py](./src/bugs.py) takes a raw csv file that contains a bug spreadsheet similar (though not necessarily identical) to the ones we made in 2019, computes shannon indices per date per sensor, and outputs these to a new csv of a per-farm basis.
+
+The program [bugs.py](./src/bugs.py) can be found in the `./src/` directory. It can be called either from the parent directory or from the sub-directory. To call the program, you need to have the following folder structure:
+
+##### Folder structure for [bugs.py](./src/bugs.py)
+
+```bash
+bugs
+  ├── bugs.py
+  ├── in
+  │   ├── KK_bugs.csv
+  │   ├── OO_bugs.csv
+  │   └── PU_bugs.csv
+  └── out
+      └── PU_bugShannon.csv
+```
+
+This folder structure is similar to the [drone folder](#required-folder-structure) but much simpler. The bugs.py file needs to be at the same level as an "in" directory, and that "in" directory contains the raw data spreadsheets.
+
+##### Running [bugs.py](./src/bugs.py)
+
+When you run [bugs.py](./src/bugs.py), you need to pass two arguments:
+
+1. Farm name
+2. Column number that contains sensor name
+
+For the [PU_bugs.csv](./bugs/in/PU_bugs.csv) file, you will notice that the sensor is defined in the 3rd column. In [KK_bugs.csv](./bugs/in/KK_bugs.csv) and [OO_bugs.csv](./bugs/in/OO_bugs.csv), the sensor is defined in column 2. This variation is why I have you pass a sensor-name column number into the program.
+
+**Running** this program on PU looks like this:
+
+```bash
+python bugs.py PU 2 # column numbers count up from 0, so the 3rd spreadsheet column is input as 2
+```
+
+and for KK:
+
+```bash
+python bugs.py KK 1
+```
+
+##### Folder after running
+
+When the program finishes, it produces another sub-directory called "out" and writes a new farm-specific csv file in "out" that contains the shannon index per date per sensor for that farm.
+Here's an example output:
+
+```bash
+🌿 [bugs] % tree # before running the program
+.
+├── bugs.py
+└── in
+    ├── KK_bugs.csv
+    ├── OO_bugs.csv
+    └── PU_bugs.csv
+
+1 directory, 4 files
+🌿 [bugs] % python bugs.py PU 2 # run the program on PU
+SHANNON INDICES for PU
+----------------------
+2019-06-10:
+   1C: 1.6105880819341323
+   2C: 1.904732545624056
+   3C: 1.8019511397932635
+   4C: 1.2406842919533958
+   5C: 1.8793229366412711
+   6C: 2.109254310789418
+   7C: 2.014457112289457
+   8C: 2.698011019844113
+2019-06-17:
+   1C: 1.3083821620876614
+   2C: 2.2999438266217203
+   3C: 2.4793364791779537
+   ...
+Results output to: /out/PU_bugShannon.csv
+🌿 [bugs] % tree # output folder structure
+.
+├── bugs.py
+├── in
+│   ├── KK_bugs.csv
+│   ├── OO_bugs.csv
+│   └── PU_bugs.csv
+└── out
+    └── PU_bugShannon.csv
+
+2 directories, 5 files
+```
+
+**Note** that after the program is completed, we see a new folder "out" and within that folder a file named "PU_bugShannon.csv". This file contains all of the computed data.
+
+##### Test it yourself
+
+I welcome you to test [bugs.py](./src/bugs.py) yourself by downloading this repository, making sure you have `scikit-bio` python module installed, and running [bugs.py](./src/bugs.py) on PU, OO, and KK farms from within the [bugs][./bugs] folder.
 
 #### Note
 
