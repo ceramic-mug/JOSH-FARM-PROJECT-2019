@@ -40,16 +40,20 @@ I wish you well!
         - [Folder after running](#folder-after-running)
         - [Test it yourself](#test-it-yourself)
       - [Note](#note)
+    - [DEER](#deer)
+      - [Implementing deer.py for Princeton corn field](#implementing-deerpy-for-princeton-corn-field)
+    - [SOIL NUTRIENTS](#soil-nutrients)
+  - [AGGREGATION & PROCESSING](#aggregation--processing)
 
 ## Project Arms
 
 1. [Drone Data](#DRONE)
 2. [Arable Sensor Data](#ARABLE)
-3. Other Data
-    - Bugs
-    - Soil Nutrients
-    - Camera Traps
-4. General Processing
+3. [Other Data](#bugs-deer-and-nutrients)
+    - [Bugs](#bugs)
+    - [Soil Nutrients](#soil-nutrients)
+    - [Deer](#deer)
+4. Aggregation and Processing
 
 <!-- TODO: Add Stitching Troubleshooting Section -->
 
@@ -751,3 +755,40 @@ I welcome you to test [bugs.py](./src/bugs.py) yourself by downloading this repo
   - The index is not a true measure of biodiversity; it's an index. This means that another computation should be performed using the Shannon's index in order to get a true diversity value. I didn't have time to research and determine what this deeper computation should be.
   - I computed Shannon's index per sensor per collection date, but this meant that I was computing over all three trap types. My Shannon calculation assumed that each row was a distinct species, but running the computation over all three traps together meant that some species were duplicated (especially between the ground and fly trap).
     - **Resolution**: give each species an ID when you first encounter it in the year (even if you don't know it's actual species name) and tag each consecutive encounter with that insect type with the ID you make at the beginning. Keep an ID dictionary sheet or folder with images to help you keep track of each bug's ID. This would allow you to see how specific bug populations change over time, which would be best. It would also allow you to differentiate species properly between fly, ground, and pitfall traps for my Shannon computation.
+
+### DEER
+
+During the summer of 2019, we monitored deer at the PU corn experiment only. We used eight camera traps: one at each corner of the field we were monitoring, and one at each corner of a fence that enclosed an internal section of the field. Periodically, we would collect sd cards from the camera traps and translate pertinent information from the photos and videos captured on the sd card onto a spreadsheet. The spreadsheet we made for our camera trap data is in this repository at [./deer/PU_camTraps.csv](./deer/PU_camTraps.csv).
+
+To convert this data to something convenient for comparison with the other data types, I simply aggregated the "QUANTITY" column per date per treatment section. For the Princeton corn field, my rules were:
+
+- North = treatments 1 and 2
+- West = tratments 1 and 2
+- North fence = treatments 3 and 4
+- West fence = treatments 3 and 4
+- South = treatments 7 and 8
+- East = treatments 7 and 8
+- South fence = treatments 5 and 6
+- East fence = treatments 5 and 6
+
+Simply, if a deer showed up in any one of the camera traps' footage, I would add it's "Quantity" to treatment area based on the above rules.
+
+#### Implementing [deer.py](./deer/deer.py) for Princeton corn field
+
+My implementation of the described computation for deer (really it's more of a mapping) is [deer.py](./deer/deer.py). This program isn't as elegant or as general as [geoProcessing.py](./drone/geoProcessing.py) or [bugs.py](./bugs/bugs.py) because the only field we observed for deer was the PU cornfield. Therefore, I've hard-coded (specifically defined) a lot of things inside the program such that it won't work for the future without a lot of alteration.
+
+I did comment the code in [deer.py](./deer/deer.py) to walk you through what I did. You can also run it in this repository by calling
+
+```bash
+python deer.py
+```
+
+from within the [./deer](./deer) subfolder. This will produce an "out" subfolder that contains a mapping using the above rules for each plot for each date.
+
+I wanted per plot per date to compare directly to other data. Notice that after running bugs.py](./bugs/bugs.py), [geoProcessing.py](./drone/geoProcessing.py), and [deer.py](./deer/deer.py), we have per-sensor, per-date data for each of these distinct data types, which means it can all be lumped together.
+
+### SOIL NUTRIENTS
+
+The soil nutrient data was sent to us by Unibest after we mailed them the resins that we had in the ground for three weeks. The data came in .xlsx format, which made it easy to manually cut down to what I needed. I didn't implement any special function here. The only computation to be aware of is a unit conversion from ppm (parts per million) to pounds per acre, which Abigail Baskind did our year. I would email her for more details about this or give it a quick Google search.
+
+## AGGREGATION & PROCESSING
