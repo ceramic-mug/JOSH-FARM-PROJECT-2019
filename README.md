@@ -608,7 +608,7 @@ The Shannon index is a classic biodiversity index. In truth, I don't know too mu
 The Shannon index is described as
 
 <p align=center>
-<img src = "./assets/shannon.svg" width=70%/>
+<img src = "./assets/shannon.svg" width=40%/>
 </p>
 
 where R is the number of species and p_i is the proportion of individuals belonginf to species i. Verbally: the Shannon index is a sum over all the species of the product of the proportion of individuals belonging to that species (out of all the individuals) and the natural logarithm of that proportion. In other words, say you have two species, one with 2 individuals and one with 5. The proportion p_i for species 1 would be 2/7 and p_i for species 2 would be 5/7. This scales with the number of species and individuals you have.
