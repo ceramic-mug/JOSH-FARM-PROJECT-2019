@@ -792,3 +792,5 @@ I wanted per plot per date to compare directly to other data. Notice that after 
 The soil nutrient data was sent to us by Unibest after we mailed them the resins that we had in the ground for three weeks. The data came in .xlsx format, which made it easy to manually cut down to what I needed. I didn't implement any special function here. The only computation to be aware of is a unit conversion from ppm (parts per million) to pounds per acre, which Abigail Baskind did our year. I would email her for more details about this or give it a quick Google search.
 
 ## AGGREGATION & PROCESSING
+
+

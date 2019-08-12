@@ -30,6 +30,9 @@ import re
 # data
 import csv
 
+# Get command line arguments
+import sys
+
 # Build a regular expression for getting the date and time information
 # from the format that arable gives us for date and time
 dayParse = re.compile('(....)-(..)-(..)T(..):(..):(..)Z') # format 'YYYY-MM-DDTHH:MM:SSZ'
@@ -40,8 +43,12 @@ a = ArableClient()
 
 # Connect to the arable server with Dan Rubenstein's Credentials
 # (username, password, tenant)
-a.connect('dir@princeton.edu','HCpp;Jws','princeton')
-print('Connected to arable server')
+print('Attempting connection to Arable')
+try:
+    a.connect(sys.argv[1],sys.argv[2],sys.argv[3])
+    print('Connected to arable server, user: '+sys.argv[1])
+except:
+    print('Cannot connect.\nWhen running Arble grep, enter [username] [password] [tenant]')
 
 # Gather a list of all the arable devices connected to our account
 sensors = a.devices()
