@@ -24,8 +24,8 @@ I wish you well!
       - [NDVI Mosaic Export](#ndvi-mosaic-export)
     - [Construct Shapefiles to Define Areas of Interest (AOI)](#construct-shapefiles-to-define-areas-of-interest-aoi)
       - [File Structure](#file-structure)
-      - [Setting Up the Workspace](#setting-up-the-workspace)
-      - [Creating an AOI file](#creating-an-aoi-file)
+      - [Setting Up the QGIS Workspace](#setting-up-the-qgis-workspace)
+    - [Creating an AOI shapefile](#creating-an-aoi-shapefile)
       - [Building the Polygons on the AOI](#building-the-polygons-on-the-aoi)
     - [Using Python for Bulk GeoTIFF Processing](#using-python-for-bulk-geotiff-processing)
       - [Reguired Python Modules](#reguired-python-modules)
@@ -204,10 +204,56 @@ I defined AOIs using [QGIS](https://qgis.org/en/site/). Go ahead and install it 
 For any work you do in QGIS to be directly usable by my processing program [geoprocessing.py](./drone/geoprocessing.py), you need to have the following file structure in place with things properly named and organized:
 
 ```bash
-
+.
+├── AOI # Folder containing ALL AOI shapefiles and auxiliary files
+│   ├── PU_AOI.cpg
+│   ├── PU_AOI.dbf
+│   ├── PU_AOI.prj
+│   ├── PU_AOI.qpj
+│   ├── PU_AOI.shp
+│   └── PU_AOI.shx
+├── FIELD # Folder containing ALL Field shapefiles and auxiliary files
+│   ├── PU_field.cpg
+│   ├── PU_field.dbf
+│   ├── PU_field.prj
+│   ├── PU_field.qpj
+│   ├── PU_field.shp
+│   └── PU_field.shx
+├── PU # Folder containing Farm-related NDVI and RGB Sentera Exports with proper naming
+│   ├── PU_NDVI_2019_06_20.tif
+│   ├── PU_NDVI_2019_06_24.tif
+│   ├── PU_NDVI_2019_07_01.tif
+│   ├── PU_NDVI_2019_07_08.tif
+│   ├── PU_NDVI_2019_07_16.tif
+│   ├── PU_NDVI_2019_07_22.tif
+│   ├── PU_RGB_2019_06_20.tif
+│   ├── PU_RGB_2019_06_24.tif
+│   ├── PU_RGB_2019_07_01.tif
+│   ├── PU_RGB_2019_07_08.tif
+│   ├── PU_RGB_2019_07_16.tif
+│   └── PU_RGB_2019_07_22.tif
+├── example_qgis_project.qgz
+└── geoProcessing.py
 ```
 
-#### Setting Up the Workspace
+Notice the names of the folders:
+
+- AOI
+- FIELDS
+- PU
+
+PU, of course, is to be replaced with any farm. A new folder is to be created for each farm. **ALL farms' AOI and Field shapefiles go in the singular AOI and FIELDS folders**
+
+Notice also the file naming conventions:
+
+- AOI: FARM_AOI.shp
+- FIELDS: FARM_field.shp
+- NDVI: FARM_NDVI_YYYY_MM_DD.tif
+- RGB: FARM_RGB_YYYY_MM_DD.tif
+
+When [geoprocessing.py](#using-python-for-bulk-geotiff-processing) is run at its relative location in the above folder structure, it looks for the AOI and field shapefiles in the AOI and FIELDS folders at the same level as the .py file, and it looks for the Farm-specific sentera exports in folders named according to the farm. Therefore, when you're [constructing shapefiles to define your areas of interest](#construct-shapefiles-to-define-areas-of-interest-aoi), you need to save them in the AOI and FIELDS folders adjacent to [geoprocessing.py](./drone/geoprocessing.py) respectively.
+
+#### Setting Up the QGIS Workspace
 
 1. Launch QGIS
 2. If you don't have a project specified for your Farm Project (or other) work, create a new project
@@ -222,7 +268,7 @@ For any work you do in QGIS to be directly usable by my processing program [geop
 
 <!-- TODO: Make Fields shapefile instructions -->
 
-#### Creating an AOI file
+### Creating an AOI shapefile
 
 1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
     - The icon looks like a little V with dots on it
