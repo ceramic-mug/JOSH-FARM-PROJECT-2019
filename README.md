@@ -1,21 +1,31 @@
-# FARM PROJECT 2019 ~ Joshua Eastman
+<!-- TODO: Add Stitching Troubleshooting Section -->
 
-This repository holds an annotated copy of the scripts and workflows that I put together for the PEI 2019 Farm Project. This README file will give you a detailed overview of the work. All files and folders referenced here are within this repository. To access and use the code, simply download this repository as a zip file and follow the steps below for installing python and necessary python modules.
+<!-- TODO: Add section on naming conventions -->
+
+<!-- TODO: Add GIS CRS Troubleshooting Section -->
+
+# WIKI
+
+## Overview
+
+This repository holds an annotated copy of the scripts (mini programs) and workflows that I developed during my time working with the PEI 2019 Farm Project. This README.md file will act as a detailed description, walkthrough, and troubleshooting guide for all the components of my work. All files and folders referenced here are within this repository. To access and use the code, simply [download this repository](#how-to-download-this-repository) as a zip file and [configure python](#configuring-python) appropriately.
 
 I wish you well!
 
 ## Table of Contents
 
-- [FARM PROJECT 2019 ~ Joshua Eastman](#farm-project-2019--joshua-eastman)
+- [WIKI](#wiki)
+  - [Overview](#overview)
   - [Table of Contents](#table-of-contents)
-  - [Project Arms](#project-arms)
   - [DRONE](#drone)
     - [FieldAgent](#fieldagent)
       - [Image Import](#image-import)
-      - [NDVI Mosaic Output](#ndvi-mosaic-output)
+      - [Mosaic Stitching](#mosaic-stitching)
+      - [NDVI Mosaic Export](#ndvi-mosaic-export)
     - [Construct Shapefiles to Define Areas of Interest (AOI)](#construct-shapefiles-to-define-areas-of-interest-aoi)
+      - [File Structure](#file-structure)
       - [Setting Up the Workspace](#setting-up-the-workspace)
-      - [Creating the AOI file](#creating-the-aoi-file)
+      - [Creating an AOI file](#creating-an-aoi-file)
       - [Building the Polygons on the AOI](#building-the-polygons-on-the-aoi)
     - [Using Python for Bulk GeoTIFF Processing](#using-python-for-bulk-geotiff-processing)
       - [Reguired Python Modules](#reguired-python-modules)
@@ -27,7 +37,7 @@ I wish you well!
       - [Test Using This Repository](#test-using-this-repository)
       - [Notes](#notes)
   - [ARABLE](#arable)
-    - [Getting the Data](#getting-the-data)
+    - [Getting the Arable Sensor Data](#getting-the-arable-sensor-data)
       - [Limitations](#limitations)
     - [Handling the Data](#handling-the-data)
   - [BUGS, DEER, and NUTRIENTS](#bugs-deer-and-nutrients)
@@ -44,28 +54,17 @@ I wish you well!
       - [Implementing deer.py for Princeton corn field](#implementing-deerpy-for-princeton-corn-field)
     - [SOIL NUTRIENTS](#soil-nutrients)
   - [AGGREGATION & PROCESSING](#aggregation--processing)
-
-## Project Arms
-
-1. [Drone Data](#DRONE)
-2. [Arable Sensor Data](#ARABLE)
-3. [Other Data](#bugs-deer-and-nutrients)
-    - [Bugs](#bugs)
-    - [Soil Nutrients](#soil-nutrients)
-    - [Deer](#deer)
-4. Aggregation and Processing
-
-<!-- TODO: Add Stitching Troubleshooting Section -->
-
-<!-- TODO: Add section on naming conventions -->
-
-<!-- TODO: Add GIS CRS Troubleshooting Section -->
-
-Each of these project arms were approached somewhat differently due to differences in the data structures. The Arable Sensor and Drone Imagery data wrangling applications presented in this repository are built around the Arable and FieldAgent specifications, respectively. Bug, soil nutrient, and camera trap data are all held in spreadsheets and so are handled much more simply. We will begin our overview with a detailed description of Arable data handling.
+    - [aggregate.py](#aggregatepy)
+      - [Conditions](#conditions)
+      - [Input Space](#input-space)
+      - [Output space](#output-space)
+      - [Interpreting the data in aggregate master CSVs](#interpreting-the-data-in-aggregate-master-csvs)
+  - [How to download this Repository](#how-to-download-this-repository)
+  - [Configuring Python](#configuring-python)
 
 ## DRONE
 
-**Drone image processing and data extraction** is the big ticket item. This section describes how to use a GIS application to define areas of interest (AOI) and then use these areas with Sentera FieldAgent NDVI exports to extract matrices of NDVI values. Once you have an extracted NDVI value matrix, you can perform all the numerical analysis you want, such as distribution fitting and differentials over time. Ok, let's get started:
+**Drone image processing and data extraction** was the big ticket item of my work. This section of my guide describes how to use a [GIS application](https://qgis.org/en/site/) to define areas of interest (AOIs) and then use these areas with [Sentera FieldAgent](https://sentera.com/fieldagent-platform/) NDVI exports to extract matrices of NDVI values. I also describe how I processed these matrices and convert NDVI and RGB Sentera outputs to a host of useful files defined according to your needs.
 
 *What you need:*
 
@@ -78,31 +77,31 @@ Each of these project arms were approached somewhat differently due to differenc
 
 ### FieldAgent
 
+[Sentera FieldAgent Desktop](https://sentera.com/fieldagent-platform/) is the software the Princeton Farm Project uses to process drone imagery. The software is proprietary (hence the funny name) and a bit of a black box. This walkthrough will detail the workflow that I developed to best handle image input from the drone micro SD cards and the best settings for FieldAgent exports. We export because as long as the data is stored in the FieldAgent app it's of no use to us.
+
 #### Image Import
 
 Here is how structured my image import workflow, and it worked really well. The basic steps are:
 
-1. Move RGB and NIR images to folder on computer
+1. Move RGB and NIR images to respective independent folders on computer
     - RGB: Create folders for each farm and date
-    - NIR: Add farm name to snapshot folders after moving
+    - NIR: Add farm name to snapshot folder names after moving
 2. Add images in bulk
     - Can add multiple farms at once, **but not multiple times**. So if any farm was flown over more than once between imports, you need to import each flight seperately.
+
+Here are the details:
 
 After having successfully flown the drone at your farms for the week, you need to import the images from the two drone SD cards:
 
 - From the side of the drone (RGB)
 
-<p align="center">
-<img src='./assets/RGBsd.jpg' width=30%/>
-</p>
+![rgbCam](./assets/RGBsd.jpg)
 
 - From the little green Sentera sensor (NIR)
   
-<p align="center">
-<img src='./assets/NIRsensor.jpg' width=30%/>
-</p>
+![green NIR](./assets/NIRsensor.jpg)
 
-When I did this on the Lenovo laptop, I created a top-level folder on the TeraByte drive called "DRONE" and structured sub-folders like this:
+When I did this on the Lenovo Farm Project laptop, I created a top-level folder on the TeraByte drive called "DRONE" and structured sub-folders like this:
 
 ```bash
 D:
@@ -124,20 +123,17 @@ D:
 └── (etc...)
 ```
 
-The contents of each RGB child folder (`PU-2019-08-02-RGB`, etc.) are the images from the drone's RGB SD card (from its side). You will need to make each of these RGB folders and name them. The NIR folders (`PU-2019-08-02_20-06-13`, etc.) are the "Snapshots" folders from the NIR SD card with the farm name added to the front. The contents of these folders include all of the images and a bunch of metadata files. You don't need to worry about the metadata files.
+The contents of each RGB child folder (`PU-2019-08-02-RGB`, etc.) are the images from the drone's RGB SD card. **You will need to make each of these RGB folders and name them appropriately**. The NIR folders (`PU-2019-08-02_20-06-13`, etc.) are from the "Snapshots" folder created automativally on the NIR SD card. You need to manually add the farm name to the front. The contents of the automatically made NIR folders include all of the images and a bunch of metadata files. You don't need to worry about the metadata files.
 
-**Make sure that you delete** the DCIM images (RGB SD card) and "Snapshots" sub-folders (NIR SD card) once you have moved everything onto the laptop's D: drive. This will keep those SD cards from filling up (16 and 32GB each, respectively) and will make it easier for you to figure out what you have imported already in the future.
+**Make sure that you delete** the DCIM images (RGB SD card) and "Snapshots" sub-folders (NIR SD card) once you have moved everything onto the laptop's D: drive. This will keep those SD cards from filling up (they are 16 and 32GB each, respectively) and will make it easier for you to figure out what you have imported already in the future.
 
 After moving everything onto the computer and cleaning the SD cards, it's time to import the images as "Surveys" in the FieldAgent Desktop app.
 
-<p align="center">
-<img src='./assets/ClickFieldAgent.png' width=80%/></br>
-Launch FieldAgent Desktop Application
-</p>
+![Launch FieldAgent Desktop Application](./assets/ClickFieldAgent.png)
 
-Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out. What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guide)for this) and everything will import properly to their respective farms.
+Once you're inside the applicaion, click the big blue "CREATE SURVEYS" button at the top. Click "Add" on the right of the white box, and **select the NIR and RGB folders** that you've migrated over to the computer. **You can choose folders that correspond to multiple farms and the FieldAgent software will sort them out.** What it can't sort out is time, so make sure that you only include one flight tops per farm. Go through the next steps (see [Sentera's Documentation](https://desk.zoho.com/portal/sentera/kb/articles/fieldagent-desktop-user-guide) for detailed instructions) and everything will import properly to their respective farms.
 
-#### NDVI Mosaic Output
+#### Mosaic Stitching
 
 Once the images have imported to their respective farms and dates, you can begin stitching them into RGB and NDVI mosaics.
 
@@ -149,17 +145,13 @@ Once the images have imported to their respective farms and dates, you can begin
 3. Navigate to and click on the field you want to export
 4. In the farm survey viewer, select the date you want to create a mosaic for, then click the blue button with a grid on it to add the selected survey to the stitching queue:
 
-<p align="center">
-<img src='./assets/PU.png' width=80%/>
-</p>
+![Stitch](./assets/PU.png)
 
 If everything goes properly, it should take anywhere between 30 minutes and 4 hours for the survey to be stitched into RGB, NIR, and NDVI mosaics (depending on the number of photos). Once that's complete, you will see "Full Mosiac ___" options in the survey left sidebar.
 
-<p align="center">
-<img src='./assets/NDVImosaic.png' width=80%/>
-</p>
+![NDVI mosaic](./assets/NDVImosaic.png)
 
-**To prepare the NDVI mosic for export**:
+#### NDVI Mosaic Export
 
 1. Select "Full Mosaic NDVI" in the left sidebar and allow it to load onto the map (see photo above)
 2. Click on the "NDVI Toolbox" rectangle at the top-left corner of the map
@@ -174,39 +166,46 @@ If everything goes properly, it should take anywhere between 30 minutes and 4 ho
 
 When the FieldAgent app exports the GeoTIFF to the destination folder, it gives it a generic name. **IMMEDIATELY NAVIGATE TO THE FOLDER AND NAME THE FILE ACCORDING TO YOUR CONVENTION**. You have to do all the grunt work of organizing and naming so that nothing is confused or falls through the cracks.
 
-When doing analysis on Princeton corn field NDVI GeoTIFFs, this is what my output folder looked like after exporting everything I needed:
+For an example of output RGB and NDVI mosaics with proper naming convention, see the [./drone/PU](./drone/PU) folder of this repository. Here's an overview of what the outputs for the Princeton Cornfield looks like:
 
 ```bash
-ortho
-  ├── pu-ndvi-2019-06-20.tif
-  ├── pu-ndvi-2019-06-24.tif
-  ├── pu-ndvi-2019-07-01.tif
-  ├── pu-ndvi-2019-07-08.tif
-  ├── pu-ndvi-2019-07-16.tif
-  ├── pu-ndvi-2019-07-22.tif
-  ├── pu-nir-2019-06-20.tif
-  ├── pu-nir-2019-06-24.tif
-  ├── pu-nir-2019-07-01.tif
-  ├── pu-nir-2019-07-08.tif
-  ├── pu-nir-2019-07-16.tif
-  ├── pu-nir-2019-07-22.tif
-  ├── pu-rgb-2019-06-20.tif
-  ├── pu-rgb-2019-06-24.tif
-  ├── pu-rgb-2019-07-01.tif
-  ├── pu-rgb-2019-07-08.tif
-  ├── pu-rgb-2019-07-16.tif
-  ├── pu-rgb-2019-07-22.tif
+.
+├── PU_NDVI_2019_06_20.tif
+├── PU_NDVI_2019_06_24.tif
+├── PU_NDVI_2019_07_01.tif
+├── PU_NDVI_2019_07_08.tif
+├── PU_NDVI_2019_07_16.tif
+├── PU_NDVI_2019_07_22.tif
+├── PU_RGB_2019_06_20.tif
+├── PU_RGB_2019_06_24.tif
+├── PU_RGB_2019_07_01.tif
+├── PU_RGB_2019_07_08.tif
+├── PU_RGB_2019_07_16.tif
+└── PU_RGB_2019_07_22.tif
 ```
 
-Notice that my naming convention allows you to clearly know the farm, the kind of mosaic, and the date. I recommend doing something similar.
+Notice that my naming convention allows you to clearly know the farm, the kind of mosaic, and the date. **This naming convention must be strictly followed for my geoprocessing python application to work**.
+
+- Name for NDVI mosaic output: FARM_NDVI_YYYY_MM_DD.tif
+- Name for RGB mosaic output: FARM_RGB_YYYY_MM_DD.tif
+
+> Where "FARM" in the above examples is replaced by your convention for the farm in question.
 
 ### Construct Shapefiles to Define Areas of Interest (AOI)
 
-When I say Areas of Interest (AOI), I really mean just that. What part of the farm do we care about? Obviously not the whole thing, because crops grow in rows and for some farms we're worried about one specific crop. For other farms, we run experiments on different sections and need to define these different sections in a way we can analyze them comparatively. That's why this next step is so important. Here we geographically define very precise sections that we care about and label them in such a way that we can handle and compare them easily later. I also think this process is really cool and am excited to share it with you.
+When I say Areas of Interest (AOI), I really mean just that--areas you are interested in analyzing. What part of the farm do we care about? Obviously not the whole thing, because crops grow in rows and for some farms we're worried about one specific crop. For other farms, we run experiments on different sections and need to define these different sections in a way we can analyze them comparatively. That's why this next step is so important. Here we geographically define very precise sections that we care about and label them in such a way that we can handle and compare them programatically. I also think this process of defining areas of interest and numerically analyzing them over time is *really cool* and am excited to share it with you.
 
-For demonstration, I'll walk you through sectioning the PU corn field. Farm Project 2019 ran an experiment across eight sections of an ~4 acre cornfield. For more information on the experiment specifics, [check out my poster](./assets/EASTMAN_puCorn_poster_FINAL.pdf). The important thing presently is that we had eight sections defined on the ground that needed to be translated into a digital file that defined and sectioned the larger NDVI mosiac for section-by-section comparison.
+For demonstration, I'll walk you through sectioning the PU corn field and saving these sections properly for programmatic analysis. The PEI Farm Project 2019 ran an experiment across eight sections of an ~4 acre cornfield. For more information on the experiment specifics, [check out my poster](./assets/EASTMAN_puCorn_poster_FINAL.pdf). The important thing presently is that we had eight sections defined on the ground that needed to be translated into a digital file that defined and sectioned the larger NDVI mosiac for section-by-section comparison.
 
-I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and install it to follow along.
+I defined AOIs using [QGIS](https://qgis.org/en/site/). Go ahead and install it to follow along. The QGIS project that contains this work is [here](./drone/example_qgis_project.qgz). Now, it may be the case that this project will look for the files it contains at their locations on my personal computer where this repository was made. In this case, opening the project will cause a dialogue to appear with a list of files that it can't find. If this appears, click "Locate layers." All the layers for this QGIS project are within the [drone](./drone) folder of this repository under [PU](./drone/PU), [AOI](./drone/AOI), and [FIELDS](./drone/FIELDS) respectively.
+
+#### File Structure
+
+For any work you do in QGIS to be directly usable by my processing program [geoprocessing.py](./drone/geoprocessing.py), you need to have the following file structure in place with things properly named and organized:
+
+```bash
+
+```
 
 #### Setting Up the Workspace
 
@@ -221,29 +220,28 @@ I accomplished this using [QGIS](https://qgis.org/en/site/). Go ahead and instal
 6. Display the RGB mosaic of the farm of interest on the map
     - If your map viewer gets all jacked up and everything dissapapears (this happened to me all the time as I was learning QGIS), right-click on a layer and select "Zoom to Layer." This should restore your view to something manageable.
 
-#### Creating the AOI file
+<!-- TODO: Make Fields shapefile instructions -->
+
+#### Creating an AOI file
 
 1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
     - The icon looks like a little V with dots on it
-2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to where you want to store your shapefile and name it something conventional
-    - I recommend that you save the shapefile layer in a sub-directory of the mosaic folder, or somewhere on the same level. This will make processing a little easier. But as long as you keep track of where you save everything, no worries.
+2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to the AOI folder and name your shapefile according to my conventiom : FARM_AOI (see the [AOI folder](./drone/AOI))
 3. Leave "File Encoding" as UTF-8
 4. For "Geometry Type", select "Polygon"
-5. Under "New Field," define a field name that matches your needs (like "Crop" or "Treatment Section")
-    - This is to identify each polygon you create within the multipolygon layer so that you can differentiate later on as you process
+5. Under "New Field," add a field "Kind"
+    - This allows the python program to differentiate between AOIs in a meaningful way
+    - You will specify the crop type or relevant attribute of the AOI in this column of the AOI attribute table
 6. Click "Add field"
 7. Click "OK" to exit the window
 
-Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
+> Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
 
 #### Building the Polygons on the AOI
 
 Here's a short visual summary:
 
-<p align="center">
-<img src='./assets/BuildShape.png' width=80%/></br>
-Creating Polygon Layer in QGIS
-</p>
+![Build AOI](./assets/PUbuildAOI.png)
 
 1. Select the shapefile layer in the "Layer" panel
 2. Click the little pencil near the top-left ("Toggle Editing")
@@ -252,9 +250,9 @@ Creating Polygon Layer in QGIS
     - It may be helpful to create a "Points" shapefule layer and define vertices first to make the polygon drawing easier. Google how to do this for instructions :P
 5. Single-click each vertex in order. The polygon will automatically take shape
 6. When you've finished defining one area of interest, right-click.
-    - This will prompt you to enter data to the fields you've made. Increment integers for your IDs and use whatever label defines the polygon in the field you created when defining the shape
-    - If you realize you want a label that you didn't make a field for, don't worry. Finish making your polygons and then add that field to the shapefile layer attribute table. Google "QGIS add field to shapefile attribute table" to see how to do this if you need to.
-7. When you've finished creating polygons for all your areas of interest, click "Toggle Editing" again
+    - This will prompt you to enter data to the fields you've made. Increment integers for your IDs and **enter a defining characteristic of the AOI into the "Kind" field. YOU MUST FILL OUT THE Kind and ID fields for my program to work**
+    - If you made the shapefile but forgot to add a "Kind" field, you can do so by right-clicking on the AOI layer in the layer panel on the left of the QGIS window, clicking "Attribute Table", clicking "Add Field" in the toolbar of the attribute table, and defining that new field as "Kind"
+7. When you've finished creating polygons for all your areas of interest, click "Toggle Editing (the little pencil at the top)" again
     - Save when prompted
 
 And that's it! If you took your time and defined your polygons well, then your analysis will be ON POINT! If not, then your numbers will lie, so make sure you define your AOIs very well.
@@ -516,45 +514,46 @@ If you have Python and the necessary modules properly installed, the process sho
 
 ## ARABLE
 
-The arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
+The Arable sensors are stationary UFO-shaped things on poles that stick up above crop canopies. They gather atmospheric and spectrometric data and report the data in two resolutions: daily and hourly.
 
 - Link to the Arable website: [https://www.arable.com/](https://www.arable.com/)
-- Link to our Arable portal: [https://princeton.arable.com/](https://princeton.arable.com/auth/(auth_view:login))
+- Link to Princeton Arable portal: [https://princeton.arable.com/](https://princeton.arable.com/auth/(auth_view:login))
 - Link to the Arable API documentation: [https://pro-soap.cloudvent.net/](https://pro-soap.cloudvent.net/)
 
-I know that last link looks sketchy, and you'll be directed to a really sketchy-looking page that says "FREE PLAN," but that's actually the documentation page. Go ahead and click through the scary blue button and you'll land on the true Arable API documentation site. I used it to build my program, so I know it's the right stuff.
+> I know that last link looks sketchy, and you'll be directed to a really sketchy-looking page that says "FREE PLAN," but that's actually the documentation page. Go ahead and click through the scary blue button and you'll land on the true Arable API documentation site. I used it to build my program, so I know it's the right stuff.
 
-### Getting the Data
+### Getting the Arable Sensor Data
 
-- File: [./src/ArableGrep.py](./src/ArableGrep.py)
-- Function: Downloads all the hourly, daily, and health data from currently operational Arable sensors and outputs all data to csv files in the [arable_data](./arable_data) directory, labeled by sensor name and data type.
+- File: [ArableGrep.py](./arable_data/ArableGrep.py)
+- Function: Downloads all the hourly, daily, and health data from currently operational Arable sensors and outputs all data to csv files in a new "out" sub-directory of whatever directory this program is run in. CSV files are labeled by sensor name and data type (daily, hourly, health, e.g. "OO Zucchini_hourly.csv").
 
-To run this program, navigate to the folder containing this repository using your terminal and run the following command:
+To run this program, navigate to the folder containing the program ([arable_data](./arable_data)) in your terminal and run the following command:
 
 ```bash
-python ./src/ArableGrep.py
+python ArableGrep.py "[username]" "[password]" "[tenant]"
 ```
 
-This will create an "arable_data" directory within the parent directory (same level as "src") and create csv files containing hourly, daily, and health data for all of the sensors within that folder. If any of these csv files already exists, the program will intelligently download all of the most recent data (between the last sync and the present) and append it to the existing csv file.
+The "[username]" "[password]" "[tenant]" command-line arguments input after the program name tell the program which Arable client to handle. This makes ArableGrep.py general; that is, you could technically use it for any account at all. The username and password arguments are self-evident, and you should have this information if you're using this file. "tenant" is internal to the Arable system and is the first part of the URL you use to log into your Arable portal. For the Princeton farm project, our portal is "[princeton.arable.com](https://princeton.arable.com/)" and our "tenant," therefore, is "princeton"
+
+Running [ArableGrep.py](./arable_data/ArableGrep.py) will create an "out" sub-directory within the [arable_data](./arable_data) directory and create csv files containing hourly, daily, and health data for all of the sensors within that folder. **If any of these csv files already exists, the program will intelligently download all of the most recent data (between the last sync and the present) and append it to the existing csv file.**
 
 After running this program, your "arable_data" directory should look something like this:
 
 ```bash
 .
 ├── arable_data
-│   ├── BRF\ Standard\ Tomato_daily.csv
-│   ├── BRF\ Standard\ Tomato_health.csv
-│   ├── BRF\ Standard\ Tomato_hourly.csv
-│   ├── BRF\ Swiss\ Chard_daily.csv
-│   ├── BRF\ Swiss\ Chard_health.csv
-│   ├── BRF\ Swiss\ Chard_hourly.csv
-│   ├── CG\ Cherry\ Tomato_daily.csv
-│   ├── CG\ Cherry\ Tomato_health.csv
-│   ├── CG\ Cherry\ Tomato_hourly.csv
-│   ├── CG\ Standard\ Tomato_daily.csv
-│   ├── ... (as many as you have)
-└── src
-    └── ArableGrep.py
+  ├── out
+    ├── BRF\ Standard\ Tomato_daily.csv
+    ├── BRF\ Standard\ Tomato_health.csv
+    ├── BRF\ Standard\ Tomato_hourly.csv
+    ├── BRF\ Swiss\ Chard_daily.csv
+    ├── BRF\ Swiss\ Chard_health.csv
+    ├── BRF\ Swiss\ Chard_hourly.csv
+    ├── CG\ Cherry\ Tomato_daily.csv
+    ├── CG\ Cherry\ Tomato_health.csv
+    ├── CG\ Cherry\ Tomato_hourly.csv
+    ├── CG\ Standard\ Tomato_daily.csv
+    ├── ... (as many as you have)
 ```
 
 #### Limitations
@@ -567,17 +566,17 @@ Three known bugs exist in this program:
 
 ### Handling the Data
 
-Downloading the data into an accessible (csv) format is the biggest hurdle. Once it's in the csv format, you can do whatever you want with it. When I did my pretty basic analysis of the Princeton cornfield sensor data, I only used the "*_daily.csv" data and averaged data per drone flight week. I'll discuss that in more detail later.
+Downloading the data into an accessible (csv) format is the biggest hurdle. Once it's in the csv format, you can do whatever you want with it. When I did my pretty basic analysis of the Princeton cornfield sensor data, I only used the "*_daily.csv" data and averaged data per drone flight week. This is implemented in [aggregate.py](./aggregate/aggregate.py) and is discussed at length [below](#aggregatepyaggregateaggregatepy).
 
 However, early on in the summer I built a wrangling program with some handy functions that take arable csv files as inputs and output handy data objects. You're welcome to use these functions and dictionaries for your own programs.
 
 - General Wrangling Program: [./src/ArableWrangle.py](./src/ArableWrangle.py)
 
-Not all of the functions in [ArableWrangle](./src/ArableWrangle.py) may be useful to you. I would look through this script and identify things that are helpful, implementing only those aspects that are benificial. This program wasn't cleanly finished and packaged because my work shifted to Princeton cornfield only at the end of the 2019 Farm Project, which meant that handling *all* the Arable data was no longer important to me. Development of this specific program therefore ground to a halt.
+Not all of the functions in [ArableWrangle](./src/ArableWrangle.py) may be useful to you. I would look through this script and identify things that are helpful, implementing only those aspects that are benificial. This program wasn't cleanly finished and packaged because my work shifted to *only* Princeton cornfield at the end of the 2019 Farm Project, which meant that handling *all* the Arable data was no longer important to me. Development of this specific program therefore ground to a halt.
 
 ## BUGS, DEER, and NUTRIENTS
 
-Other vectors we observed and for which we gathered data over time were:
+Other vectors we observed over time were:
 
 - Insects
 - Deer
@@ -676,9 +675,9 @@ bugs
 
 This folder structure is similar to the [drone folder](#required-folder-structure) but much simpler. The bugs.py file needs to be at the same level as an "in" directory, and that "in" directory contains the raw data spreadsheets.
 
-##### Running [bugs.py](./src/bugs.py)
+##### Running [bugs.py](./bugs/bugs.py)
 
-When you run [bugs.py](./src/bugs.py), you need to pass two arguments:
+When you run [bugs.py](./bugs/bugs.py), you need to pass two arguments:
 
 1. Farm name
 2. Column number that contains sensor name
@@ -793,4 +792,144 @@ The soil nutrient data was sent to us by Unibest after we mailed them the resins
 
 ## AGGREGATION & PROCESSING
 
+This step in the process takes all of the outputs from above processes (bugs, deer, NDVI, etc.) and combines them into single csvs for easy read-in and analysis. In this repository, aggregation of these data types occurs in the [aggregate](./aggregate) folder using [aggregate.py](./aggregate/aggregate.py).
 
+### [aggregate.py](./aggregate/aggregate.py)
+
+[aggregate.py](./aggregate/aggregate.py) takes the output csvs of other processes and combines them into one csv. To run [aggregate.py](./aggregate/aggregate.py):
+
+1. Ensure that you run all the processes you want to put together
+   - drone NDVI ([geoProcessing.py](#running-geoprocessingpydronegeoprocessingpy))
+   - insects ([bugs.py](#running-bugspysrcbugspy))
+   - deer ([deer.pu](#implementing-deerpydeerdeerpy-for-princeton-corn-field))
+   - Arable ([ArableGrep.py](#getting-the-data))
+   - soil nutrients ([Unibest data](#soil-nutrients))
+2. Navigate to the [aggregate](./aggregate) folder
+3. Run the following:
+
+```bash
+python aggregate.py [farm] [conditions]
+```
+
+where `[conditions]` refers to a list, seperated by spaces, of the data types you want to aggregate.
+
+#### Conditions
+
+Conditions to choose from when running
+
+```bash
+python aggregate.py [farm] [conditions]
+```
+
+in a properly set-up folder include:
+
+- `NDVI`
+- `arable`
+- `bugs`
+- `nutrients`
+- `deer`
+
+#### Input Space
+
+The input [aggregate](./aggregate) folder should look like:
+
+```bash
+.
+└── aggregate.py
+```
+
+that is, nothing needs to be in there besides `aggregate.py`. However, it's important that the parent-level directory structure around [aggregate](./aggregate) contains the following:
+
+```bash
+.
+├── aggregate
+│   └── aggregate.py
+├── arable_data
+│   └── ArableGrep.py
+├── bugs
+│   ├── bugs.py
+│   ├── in
+│   │   └── PU_bugs.csv
+│   └── out
+│       └── PU_bugShannon.csv
+├── deer
+│   ├── deer.py
+│   ├── in
+│   │   └── PU_camTraps.csv
+│   └── out
+│       └── PUdeerCounts.csv
+├── drone
+│   ├── OUTPUTS
+│   │   └── mean_NDVI
+│   │       └── PU_mean_ndvi.csv
+│   └── geoProcessing.py
+├── nutrients
+    └── soil-2019-07-17.csv
+```
+
+That is, each respective data type (deer, bugs, etc.) that you want to aggregate **must have an output** in these locations respective to [aggregate.py](./aggregate/aggregate.py).
+
+For example, if you want to run
+
+```bash
+python aggregate.py PU deer bugs nutrients NDVI
+```
+
+You need to have:
+
+- PU_bugShannon.csv in ./bugs/out/
+- PUdeerCounts.csv in ./deer/out/
+- PU_mean_ndvi.csv in ./drone/OUTPUTS/mean_ndvi/
+- soil*.csv in ./nutrients/
+
+Without any of these, the above call will not run. But if you do not have any one of these outputs, or if you desire a different set of aggregate data, simply adjust your list of command-line conditions appropriately.
+
+#### Output space
+
+When 
+
+```bash
+python aggregate.py PU deer bugs nutrients NDVI
+```
+
+is run with the [dependent supporting files in place](#input-space), a new `out` subdirectory will be produced in [aggregate.py](./aggregate/aggregate.py) and a file named according to farm and conditions will be produced within that folder. The above call will make the [aggregate.py](./aggregate/aggregate.py) folder look like:
+
+```bash
+.
+├── aggregate.py
+└── out
+    └── PU_master_deer_bugs_nutrients_NDVI.csv
+```
+
+Notice that the `PU_master_deer_bugs_nutrients_NDVI.csv` filename tells you exactly which data types are included in the aggregate. `master` refers to the fact that this file is a compilation of many data. The inside of this file looks like:
+
+Running
+
+```bash
+python aggregate.py PU bugs NDVI
+```
+
+produces another file in the `out` folder:
+
+```bash
+.
+├── aggregate.py
+└── out
+    ├── PU_master_bugs_NDVI.csv
+    └── PU_master_deer_bugs_nutrients_NDVI.csv
+```
+
+which you can see bears the redueed conditions list.
+
+#### Interpreting the data in aggregate master CSVs
+
+The distinct data types compiled into single csvs with [aggregate.py](./aggregate/aggregate.py) can only be compiled with a bit of wrangling to get dates to line up. Specifically, the "arable" daily csv datatype has a value for every single day for each of its subtypes (precipitation, temp, etc.). However, we want to aggregate data over the time period that's amenable to the data type with the broadest observation time-steps. You can think of this as finding the least common factor of timesteps between the datatypes and then smooshing everything else down to fit that time-step. This reduces the amount of information we analyze, but smoothly slots everything together in a way that makes sense.
+
+## How to download this Repository
+
+![Download](./assets/download.png)
+
+1. Click the green "Clone or Download" button near the top-right of the GitHub repository window.
+2. Click "Download ZIP"
+
+## Configuring Python

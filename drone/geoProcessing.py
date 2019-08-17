@@ -334,7 +334,8 @@ def meanNDVI(vals,row,date):
 
     # Append to by-farm mean
     with open(mNDVI,'a') as YES:
-        newline ='\n'+row['Kind']+','+date.strftime('%Y-%m-%d')+','+str(np.mean(vals))
+        # Users should make QGIS aoi shape IDs same as bug sheet IDs
+        newline ='\n'+row['Kind']+','+str(row['id'])+','+date.strftime('%Y-%m-%d')+','+str(np.mean(vals))
         YES.write(newline)
     
     return
@@ -396,7 +397,7 @@ for key in output_dict.keys():
 # overwrites whatever exists
 mNDVI = output_dict['mean_csv']+farm+'_mean_ndvi.csv'
 with open(mNDVI,'w') as DUDE:
-    DUDE.write('aoi,date,mean_ndvi')
+    DUDE.write('aoi,id,date,mean_ndvi')
 
 # do the things!
 allTheThings()

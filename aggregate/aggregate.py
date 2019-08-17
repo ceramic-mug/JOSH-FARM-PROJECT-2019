@@ -5,6 +5,32 @@
 ##                                      ##
 ##########################################
 
+#################################################
+##                                             ##
+##             RUNNING THE PROGRAM             ##
+##                                             ##
+##   python aggregate.py [farm] [conditions]   ##
+##                                             ##
+##      where [conditions] is a list of        ## 
+##      any of the following seperated by      ##
+##      spaces:                                ##
+##         - "nutrients"                       ##
+##         - "bugs"                            ##
+##         - "deer"                            ##
+##         - "arable"                          ##
+##         - "NDVI"                            ##
+##                                             ##
+##                                             ##
+##                  EXAMPLE                    ##
+##                                             ##
+##    python aggregate.py PU deer NDVI         ##
+##                                             ##
+##       Outputs csv with those data-types     ##
+##       aggregated                            ##
+##                                             ##
+##                                             ##
+#################################################
+
 import os # for making directories and checking to see if they exist
 import glob # for getting filenames and relative paths
 import re # for getting text information and filtering
@@ -21,7 +47,7 @@ import sys # for command line arguments
 def get_farm_name():
     # Grab the pure farm name from the name we pass in
     farm_name_getter = re.compile('(.*)_?.*')
-    farm_name = farm_name_getter(farm)
+    farm_name = farm_name_getter.match(farm)
     farm_name = farm_name.group(1)
 
     return farm_name
@@ -74,13 +100,17 @@ def flight_dates():
     dates = []
     for flight in flights:
         d = parser.match(flight)
-        date = datetime.datetime(d.group(1),d.group(2),d.group(3))
+        date = datetime.datetime(int(d.group(1)),int(d.group(2)),int(d.group(3)))
         if not date in dates:
             dates.append(date)
+
+    dates.sort()
     return dates
 
 # get a list of sensors from the bug processing output and
 def sensors():
+
+    print('Gathering sensor names')
 
     bugFile = os.path.join(my_path,'../bugs/out/'+farm+'_bugShannon.csv')
     df = pd.read_csv(bugFile)
@@ -136,10 +166,15 @@ def treatment_dict():
 # Take the first sensor and use that as a proxy for all atmospheric conditions for the farm
 def arable():
 
+    print('Gathering Arable data')
+
     farm_name = get_farm_name()
 
     # read in the first DAILY arable data file for that farm
-    a = pd.read_csv(glob.glob(os.path.join(my_path,'../arable_data/'+farm+'*_daily.csv'))[0])
+    try:
+        a = pd.read_csv(glob.glob(os.path.join(my_path,'../arable_data/out/'+farm+'*_daily.csv'))[0])
+    except:
+        raise Exception('No daily arable data for '+farm+'. Please remove arable from your conditions inputs or download Arable data first.')
     
     # convert time column
     a['time'] = [datetime.datetime.strptime(x,'%Y-%m-%dT00:00:00Z') for x in a['time']]
@@ -163,15 +198,22 @@ def arable():
 
 # Get the mean NDVI for each flight for the farm
 def NDVI_treatments():
+
+    print('Gathering NDVI data')
+
     n_stats = pd.read_csv(os.path.join(my_path,'../drone/OUTPUTS/mean_NDVI/'+farm+'_mean_ndvi.csv'))
-    n = n_stats[['aoi','date','mean_ndvi']]
+    n = n_stats[['aoi','id','date','mean_ndvi']]
     n['date'] = [datetime.datetime.strptime(x,'%Y-%m-%d') for x in n['date']]
+    n['julian'] = [x.timetuple().tm_yday for x in n['date']]
     n = n.reset_index()
     return n
 
 # return a dataframe with the 2019-07-16 soil sample data
 # TODO: CHANGE THE FILE PATH IF YOU WANT TO USE NEW SOIL SAMPLE DATA
 def nutrient():
+
+    print('Gathering UniBest AgManager data')
+
     farm_name = get_farm_name()
     try:
         soil = pd.read_csv(os.path.join(my_path,'../nutrients/soil-2019-07-17.csv'))
@@ -185,6 +227,9 @@ def nutrient():
 # return count of deer in plot per time interval
 # TODO: Remove conditions if you do sensors at other farms in the future
 def deer():
+
+    print('Gathering deer data')
+
     if farm == 'PU':
         return pd.read_csv(os.path.join(my_path,'../deer/out/PUdeerCounts.csv'))
     print('Deer counts only pertain to PU')
@@ -201,10 +246,13 @@ def bugPlot(i):
 # http://scikit-bio.org/docs/0.4.2/generated/generated/skbio.diversity.alpha.shannon.html
 # https://en.wikipedia.org/wiki/Diversity_index#Shannon_index
 def bugs():
+
+    print('Gathering bug data')
+
     try:
         bug_df = pd.read_csv(os.path.join(my_path,'../bugs/out/'+farm+'_bugShannon.csv'))
         return bug_df
-    else:
+    except:
         print('No bug Shannon dataframe for '+farm+'. Please run bugs.py in the bugs directory to create the dataframe.')
 
 # create a master matrix with the given command line conditions
@@ -212,14 +260,23 @@ def masterConditional():
     
     # build a list of all the data types we want to aggregate
     frames = {}
-    cases = {
-        'nutrients': nutrient(),
-        'bugs':bugs(),
-        'arable':arable(),
-        'deer':deer(),
-        'NDVI': NDVI_treatments() 
-    }
+    cases = {}
+        # 'nutrients': nutrient(),
+        # 'bugs':bugs(),
+        # 'arable':arable(),
+        # 'deer':deer(),
+        # 'NDVI': NDVI_treatments()
     for condition in conditions:
+        if condition == 'nutrients':
+            cases['nutrients'] = nutrient()
+        if condition == 'bugs':
+            cases['bugs'] = bugs()
+        if condition == 'arable':
+            cases['arable'] = arable()
+        if condition == 'deer':
+            cases['deer'] = deer()
+        if condition == 'NDVI':
+            cases['NDVI'] = NDVI_treatments()
         if condition in cases.keys():
             df = cases[condition]
             frames[condition] = df
@@ -229,6 +286,7 @@ def masterConditional():
 
     flights = flight_dates()
     dates = []
+    real_date = []
     plotList = []
     numIntervals = len(flights)-1
     ps = sensors()
@@ -238,12 +296,14 @@ def masterConditional():
         for rep in reps:
             # convert date to Julian date
             dates.append(rep.timetuple().tm_yday)
+            real_date.append(rep)
     for i in range(numIntervals):
         for p in ps:
             plotList.append(p) 
 
     master = pd.DataFrame()
-    master['date'] = dates
+    master['julian'] = dates
+    master['date'] = real_date
     master['sensor'] = plotList
     
     if 'nutrients' in conditions:
@@ -252,6 +312,17 @@ def masterConditional():
         for col in frames['nutrients'].columns:
             if not col in ['date','plot','index']:
                 master[col] = frames['nutrients'][col]
+    if 'bugs' in conditions:
+        b = frames['bugs']
+        b['julian'] = [datetime.datetime.strptime(x,'%Y-%m-%d').timetuple().tm_yday for x in b['date']]
+        shannons = []
+        for index, row in master.iterrows():
+            shannon = b[(b['julian']==row['julian']) & (b['sensor']==row['sensor'])]
+            try:
+                shannons.append(shannon['bug_shannon'].values[0])
+            except:
+                shannons.append(None)
+        master['bugs'] = shannons
     if 'arable' in conditions:
         a = frames['arable']
         a_dict = a.to_dict()
@@ -266,13 +337,39 @@ def masterConditional():
         a = a.drop(columns=a_colstoDrop)
         a['plot']=plotList
         for col in a.columns:
-            if not col in ['date','plot','index']: #TODO: Other conditions
+            if not col in ['date','plot','index']:
                 master[col] = a[col]
-    if 'bugs' in conditions:
-        b = frames['bugs']
-        shannons = []
-        for index, row in master:
-            shannon = bugs[(bugs['date'].timetuple().tm_yday==row['date']) & (bugs['sensor']==row['sensor'])]
+    if 'deer' in conditions:
+        master['deer'] = frames['deer']['deer_count'] # The deer dataframe should be built to just stick in
+    if 'NDVI' in conditions:
+        n = frames['NDVI']
+        if farm == 'PU':
+            n['sensei'] = [str(x) + 'C' for x in n['id']]
+        nd = []
+        for index, row in master.iterrows():
+            try:
+                if farm == 'PU':
+                    ap = n[(n['sensei']==row['sensor']) & (n['julian']==row['julian'])]
+                    nd.append(ap['mean_ndvi'].values[0])
+                else:
+                    ap = nd.append(n[(n['id']==row['sensor']) & (n['julian']==row['julian'])])
+                    nd.append(ap['mean_ndvi'].values[0])
+            except:
+                nd.append(np.nan)
+        master['NDVI'] = nd
+     
+    outname = ''
+    conditions.sort()
+    for condition in conditions:
+        outname = outname + '_' + condition
+
+    outpath = os.path.join(my_path, './out/')
+    if not os.path.exists(outpath):
+        os.makedirs(outpath)
+    output = outpath + farm+'_master'+outname + '.csv'
+
+    master.to_csv(output, index=False)
+
 
 # Get the farm name
 farm = sys.argv[1]
@@ -282,3 +379,5 @@ my_path = os.path.abspath(os.path.dirname(__file__))
 
 # Get the desired outputs to frame
 conditions = sys.argv[2::]
+
+masterConditional()

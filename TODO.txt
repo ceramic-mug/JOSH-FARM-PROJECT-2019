@@ -1,1 +1,1 @@
-add julian date column to all ndvi csv outputs
+How do we want the final outline to look?
