@@ -26,7 +26,8 @@ I wish you well!
       - [File Structure](#file-structure)
       - [Setting Up the QGIS Workspace](#setting-up-the-qgis-workspace)
     - [Creating an AOI shapefile](#creating-an-aoi-shapefile)
-      - [Building the Polygons on the AOI](#building-the-polygons-on-the-aoi)
+    - [Creating a FIELDS shapefile](#creating-a-fields-shapefile)
+      - [Building the Polygons](#building-the-polygons)
     - [Using Python for Bulk GeoTIFF Processing](#using-python-for-bulk-geotiff-processing)
       - [Reguired Python Modules](#reguired-python-modules)
       - [Required Folder Structure](#required-folder-structure)
@@ -60,7 +61,7 @@ I wish you well!
       - [Output space](#output-space)
       - [Interpreting the data in aggregate master CSVs](#interpreting-the-data-in-aggregate-master-csvs)
   - [How to download this Repository](#how-to-download-this-repository)
-  - [Configuring Python](#configuring-python)
+  - [Downloading and Configuring Python](#downloading-and-configuring-python)
 
 ## DRONE
 
@@ -266,13 +267,13 @@ When [geoprocessing.py](#using-python-for-bulk-geotiff-processing) is run at its
 6. Display the RGB mosaic of the farm of interest on the map
     - If your map viewer gets all jacked up and everything dissapapears (this happened to me all the time as I was learning QGIS), right-click on a layer and select "Zoom to Layer." This should restore your view to something manageable.
 
-<!-- TODO: Make Fields shapefile instructions -->
-
 ### Creating an AOI shapefile
+
+The AOI shapefile layer for each farm designates specific geographic regions of interest *which are sub-sections of the farm-field.* The AOI that you define should be rows of crop or different treatment areas of an experiment. For example, when defining AOIs for an organic farm growing tomatoes, we drew the polygons around single rows of tomato crop, single rows of zucchini, and single rows of chard. These polygons defined those individual rows of crop as our area of interest apart from all the land in between the rows.
 
 1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
     - The icon looks like a little V with dots on it
-2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to the AOI folder and name your shapefile according to my conventiom : FARM_AOI (see the [AOI folder](./drone/AOI))
+2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to the AOI folder and name your shapefile according to my conventiom : FARM_AOI.shp (see the [AOI folder](./drone/AOI) for example with FARM = PU)
 3. Leave "File Encoding" as UTF-8
 4. For "Geometry Type", select "Polygon"
 5. Under "New Field," add a field "Kind"
@@ -283,9 +284,21 @@ When [geoprocessing.py](#using-python-for-bulk-geotiff-processing) is run at its
 
 > Before the next step, make sure that snapping is turned on in QGIS. Do this by going to Project > Snapping Options and enabling "All Layers" and "Vertex and Segment" with the little magnet impressed. This will make the polygons cleanly nestled against each other if they need to be.
 
-#### Building the Polygons on the AOI
+### Creating a FIELDS shapefile
 
-Here's a short visual summary:
+The FIELDS shapefiles are a broader area of interest. They define a larger field area which is not analyzed numerically in [geoprocessing.py](#running-geoprocessingpydronegeoprocessingpy) but is cut out of the Sentera NDVI and RGB exports for graphical qualitative analysis on your part. In other words, the FIELDS shapefile is a cookie-cutter that takes big chunks out of the original exports that you can then look at side by side without all the extra fluff that you don't want. Define these shapes broadly (geographically speaking), excluding rough edges of the Sentera exports but retaining a wide field of view.
+
+1. With an RGB mosaic of choice open on the display, click "New Shapefile Layer" in the top-left of the window
+    - The icon looks like a little V with dots on it
+2. In "Filename", click the box all the way to the right with three little dots to open a file browser. Navigate to the FIELDS folder and name your shapefile according to my conventiom : FARM_field.shp (see the [FIELDS folder](./drone/FIELDS) for example with FARM = PU)
+3. Leave "File Encoding" as UTF-8
+4. For "Geometry Type", select "Polygon"
+5. Click "Add field"
+6. Click "OK" to exit the window
+
+#### Building the Polygons
+
+Here's a short visual summary of how to build the shapefile layer within the QGIS interface:
 
 ![Build AOI](./assets/PUbuildAOI.png)
 
@@ -978,4 +991,8 @@ The distinct data types compiled into single csvs with [aggregate.py](./aggregat
 1. Click the green "Clone or Download" button near the top-right of the GitHub repository window.
 2. Click "Download ZIP"
 
-## Configuring Python
+## Downloading and Configuring Python
+
+All of my code is written in Python and needs to have a properly configured Python environment to run. Here is a brief overview of downloading and configuring Python:
+
+1. I recommend downloading Python via the [Anaconda distribution](https://www.anaconda.com/). This distribution comes action-packed with all sorts of useful modules, including most, but not all, of the modules you need to run my programs. To download the [Anaconda distribution](https://www.anaconda.com/), click [here](https://www.anaconda.com/distribution/) and then click the green "Download" button in the site header. Follow the instructions and complete a standard install.

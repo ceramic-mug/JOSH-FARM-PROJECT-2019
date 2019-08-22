@@ -1,0 +1,85 @@
+# For handling command-line arguments
+import sys
+
+# For going through files and getting all those with a certain specification
+import glob
+
+# For handling the GeoTIFF files
+import rasterio
+
+# For visualizing our GeoTIFFs
+from rasterio.plot import show
+
+# For building spreadsheet-like dataframes
+import pandas as pd
+
+# For performing computations and such
+import numpy as np
+
+# For handlish shapefile AOI layers
+import geopandas as gpd
+
+# For text processing to get what we want out of Strings
+import re
+
+# For date and time handling and computing
+import datetime
+
+# For tuning input GeoTIFFs to AOI layers
+from shapely.geometry import mapping
+from rasterio.plot import plotting_extent
+from rasterio.mask import mask
+
+# For traversing and interacting with folder structure
+import os
+
+import pandas as pd # tabular data
+import numpy as np # computations
+import sys # get path
+import os # create directories and paths
+import datetime # date objects
+
+import os # for making directories and checking to see if they exist
+import glob # for getting filenames and relative paths
+import re # for getting text information and filtering
+import datetime # for handling date and time data
+import numpy as np # for handling arrays of numerical data
+import pandas as pd # for building data structures
+from skbio.diversity.alpha import shannon # for insect biodiversity quantification
+import math # basically just to get euler's number "e"
+import sys # to get command line arguments
+
+# Import arable client handler. 
+# The "arable" module is what allows you
+# to connect to the arable server.
+from arable.client import *
+
+# Write data from devices to csv file
+# from Arable API
+from io import StringIO
+
+# Handle the data in tables
+# like a spreadsheet
+import pandas as pd
+
+# Handle the dates and times as
+# objects so that we can do
+# additions and subtractions of dates
+import datetime
+
+# Work with the computer operating system
+# to make files and directories as needed
+import os
+
+# Build regular expressions that extract
+# information from date values and
+# allows us to build csv files named
+# according to farm and data type
+import re
+
+# Read and write csvs to output
+# data
+import csv
+
+# Get command line arguments
+import sys
