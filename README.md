@@ -8,7 +8,7 @@
 
 ## Overview
 
-This repository holds an annotated copy of the scripts (mini programs) and workflows that I developed during my time working with the PEI 2019 Farm Project. This README.md file will act as a detailed description, walkthrough, and troubleshooting guide for all the components of my work. All files and folders referenced here are within this repository. To access and use the code, simply [download this repository](#how-to-download-this-repository) as a zip file and [configure python](#configuring-python) appropriately.
+This repository holds an annotated copy of the scripts (mini programs) and workflows that I developed during my time working with the PEI 2019 Farm Project. This README.md file will act as a detailed description, walkthrough, and troubleshooting guide for all the components of my work. All files and folders referenced here are within this repository. To access and use the code, simply [download this repository](#how-to-download-this-repository) as a zip file and [configure python](#downloading-and-configuring-python) appropriately.
 
 I wish you well!
 
